@@ -1,4 +1,5 @@
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..errors import APIError
 from ..models import OrganizationMembership, User, DocumentPermission
@@ -163,8 +164,12 @@ class MemberService:
             role=role,
             status="active",
         )
-        db.session.add(membership)
-        db.session.commit()
+        try:
+            db.session.add(membership)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            raise APIError("User is already a member of this organization.", status_code=409)
 
         AuditService.record(
             organization_id=organization_id,

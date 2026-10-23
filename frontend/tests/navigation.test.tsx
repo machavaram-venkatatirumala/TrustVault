@@ -5,7 +5,7 @@ import { Sidebar } from '../src/components/layout/Sidebar';
 
 let mockAuthState = {
   user: { full_name: 'Jordan Lee', email: 'jordan@example.com' },
-  organization: { name: 'Northstar Advisory' },
+  organization: { name: 'Acme Security Corp' },
   role: 'member',
   isAdmin: false,
   logout: vi.fn(),
@@ -23,7 +23,7 @@ describe('Sidebar Navigation & RBAC Visibility', () => {
   it('hides admin-only navigation links for member role', () => {
     mockAuthState = {
       user: { full_name: 'Jordan Lee', email: 'jordan@example.com' },
-      organization: { name: 'Northstar Advisory' },
+      organization: { name: 'Acme Security Corp' },
       role: 'member',
       isAdmin: false,
       logout: vi.fn(),
@@ -48,8 +48,8 @@ describe('Sidebar Navigation & RBAC Visibility', () => {
 
   it('shows admin-only navigation links for administrator role', () => {
     mockAuthState = {
-      user: { full_name: 'Avery Morgan', email: 'avery@example.com' },
-      organization: { name: 'Northstar Advisory' },
+      user: { full_name: 'Jane Doe', email: 'jane@example.com' },
+      organization: { name: 'Acme Security Corp' },
       role: 'admin',
       isAdmin: true,
       logout: vi.fn(),

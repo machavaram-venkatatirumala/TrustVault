@@ -11,6 +11,7 @@ class Document(db.Model):
         db.Index("idx_doc_org_created", "organization_id", "created_at"),
         db.Index("idx_doc_org_owner", "organization_id", "owner_id"),
         db.Index("idx_doc_hash", "sha256_hash"),
+        db.Index("idx_doc_org_idempotency", "organization_id", "owner_id", "idempotency_key"),
     )
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -25,6 +26,7 @@ class Document(db.Model):
     content_type = db.Column(db.String(128), nullable=False)
     size_bytes = db.Column(db.BigInteger, nullable=False)
     sha256_hash = db.Column(db.String(64), nullable=False)
+    idempotency_key = db.Column(db.String(64), nullable=True, index=True)
     status = db.Column(db.String(32), default="active", nullable=False)  # 'active', 'deleted'
     last_verified_at = db.Column(db.DateTime, nullable=True)
     last_verification_status = db.Column(db.String(32), nullable=True)  # 'verified', 'mismatch', 'unavailable'

@@ -54,7 +54,7 @@
 - [x] Audit query endpoints (`GET /api/v1/audit-events`, `GET /api/v1/audit-events/{id}`) with admin authorization
 - [x] Member management endpoints (`GET /api/v1/members`, `PATCH /api/v1/members/{id}`, `POST /api/v1/members/invite`)
 - [x] Dashboard metrics aggregation endpoint (`GET /api/v1/dashboard/summary`, `/activity`)
-- [x] Database seed command for development demo ("Northstar Advisory", admin Avery Morgan, members Jordan Lee & Taylor Brooks)
+- [x] Real data only architecture — seed endpoints and synthetic data generators completely eradicated
 
 ## Phase 4 — Frontend/Backend Integration
 
@@ -69,7 +69,7 @@
 
 ## Phase 5 — Testing & Hardening
 
-- [x] Backend test suite with Pytest (**18/18 passed** in 3.58s)
+- [x] Backend test suite with Pytest (**26/26 passed** in 4.40s)
   - User registration & duplicate email rejection
   - Argon2id password hashing & timing-safe compare
   - Session establishment, rotation & logout invalidation
@@ -81,9 +81,17 @@
   - SHA-256 digest computation & dynamic verification
   - Storage tamper detection (mismatch flagging)
   - Permission grant & immediate revocation enforcement
+  - Fresh database contains zero business records
+  - Normal registration creates exact required records
+  - Duplicate email registration rejected with 409 Conflict
+  - Duplicate membership invite returns 409 Conflict
+  - Idempotent upload via `X-Idempotency-Key` prevents duplicate records
+  - Double-click upload deduplication window prevents duplicate storage
+  - Duplicate permission grant reuses active grant without duplicate audit entries
+  - Permission revocation immediately terminates access
 - [x] Frontend test suite with Vitest & React Testing Library (**10/10 passed**)
   - `IntegrityBadge` states (verified, mismatch, unverified, unavailable)
-  - `LoginPage` form rendering, validation, and demo persona 1-click fill
+  - `LoginPage` form rendering, real credentials input, and validation
   - `Sidebar` RBAC link rendering (admin-only links concealed from members)
 - [x] TypeScript strict checks pass (`tsc -b` with 0 errors)
 - [x] Frontend production build succeeds (`vite build` minified output in `dist/`)
@@ -92,8 +100,29 @@
 ## Phase 6 — Documentation & Delivery
 
 - [x] `README.md` with Windows PowerShell setup commands, architecture diagrams, and complete interview demo walkthrough
-- [x] `docs/architecture.md` (System overview, multi-tier design, ER diagram, cryptographic integrity flow)
+- [x] `docs/architecture.md` (System overview, multi-tier design, ER diagram, cryptographic integrity flow, real data architecture)
 - [x] `docs/security.md` (Threat model, OWASP Top 10 defense, Argon2id, path traversal, magic bytes, audit immutability)
-- [x] `docs/api.md` (Comprehensive REST API contract for all `/api/v1` routes)
+- [x] `docs/api.md` (Comprehensive REST API contract for all `/api/v1` routes with `X-Idempotency-Key`)
 - [x] `docs/deployment.md` (Production deployment with Gunicorn, Docker, Nginx, PostgreSQL, and AWS S3)
-- [x] Seed data re-initialized in clean verified state for Northstar Advisory
+
+## Phase 7 — Real Data Only & Duplicate Prevention (Completed)
+
+- [x] **Zero Mock / Demo Data Enforcement**:
+  - Removed `backend/app/routes/seed.py` and deregistered all seed blueprints.
+  - Removed demo persona 1-click switchers, quick-fill buttons, and reset/seed demo buttons from `Topbar` and `LoginPage`.
+  - Purged demo tenant "Northstar Advisory" (`1edaa840-7579-4131-9d35-3dedd96cb589`) and associated mock files from disk storage.
+  - Verified preservation of genuine user and organization records.
+- [x] **Upload Idempotency & Deduplication**:
+  - Added `idempotency_key` (indexed) to `documents` table and API schema.
+  - Added `X-Idempotency-Key` header support to upload endpoint.
+  - Implemented 10-second rapid double-click deduplication matching filename + SHA-256 for identical user, returning existing record without duplicate files on disk.
+  - Client-side UUID idempotency key generated in `UploadModal` before submission.
+- [x] **Duplicate Prevention at Application & Database Layers**:
+  - User registration catches `IntegrityError` and returns `409 Conflict`.
+  - Membership invites catch `IntegrityError` and return `409 Conflict`.
+  - Permission grants verify existing active grant with matching role and reuse without creating duplicate audit events.
+- [x] **Authentic Empty States**:
+  - Document Library: *"No documents yet — Upload your first document to begin managing access and verifying integrity."*
+  - Audit Center: *"No activity recorded yet — Security events will appear here as actions occur in your workspace."*
+  - Dashboard: Zero counts displayed directly (`0`); empty activity chart rendered when no events exist.
+

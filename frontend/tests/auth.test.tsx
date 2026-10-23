@@ -24,14 +24,6 @@ vi.mock('../src/hooks/useToast', () => ({
   }),
 }));
 
-vi.mock('../src/lib/api', () => ({
-  api: {
-    seed: {
-      seedDemo: vi.fn().mockResolvedValue({ message: 'Seeded' }),
-    },
-  },
-}));
-
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -48,6 +40,7 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText(/work email/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('••••••••••••')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^sign in$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /forgot password/i })).toBeInTheDocument();
   });
 
   it('validates empty inputs on submit', async () => {
@@ -76,7 +69,7 @@ describe('LoginPage', () => {
     );
 
     fireEvent.change(screen.getByLabelText(/work email/i), {
-      target: { value: 'avery.morgan@northstar.example' },
+      target: { value: 'jane@acme.example' },
     });
     fireEvent.change(screen.getByPlaceholderText('••••••••••••'), {
       target: { value: 'Password123!' },
@@ -89,14 +82,14 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
-        email: 'avery.morgan@northstar.example',
+        email: 'jane@acme.example',
         password: 'Password123!',
       });
     });
   });
 
-  it('quick fill button populates and logs in admin persona credentials', async () => {
-    mockLogin.mockResolvedValueOnce({ user: { id: 'u1' } });
+  it('displays error message when login fails', async () => {
+    mockLogin.mockRejectedValueOnce(new Error('Invalid email or password.'));
 
     render(
       <MemoryRouter>
@@ -104,17 +97,18 @@ describe('LoginPage', () => {
       </MemoryRouter>
     );
 
-    const adminQuickFill = screen.getByText('Avery Morgan').closest('button');
-    expect(adminQuickFill).not.toBeNull();
-    if (adminQuickFill) {
-      fireEvent.click(adminQuickFill);
+    fireEvent.change(screen.getByLabelText(/work email/i), {
+      target: { value: 'unknown@acme.example' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('••••••••••••'), {
+      target: { value: 'WrongPassword!' },
+    });
+
+    const form = screen.getByRole('button', { name: /^sign in$/i }).closest('form');
+    if (form) {
+      fireEvent.submit(form);
     }
 
-    await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith({
-        email: 'avery.morgan@northstar.example',
-        password: 'Password123!',
-      });
-    });
+    expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
   });
 });

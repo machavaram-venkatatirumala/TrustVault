@@ -86,7 +86,7 @@ export function RegisterPage() {
               label="Organization Name"
               type="text"
               required
-              placeholder="e.g. Northstar Advisory"
+              placeholder="e.g. Acme Corporation"
               value={orgName}
               onChange={(e) => setOrgName(e.target.value)}
             />
@@ -95,7 +95,7 @@ export function RegisterPage() {
               label="Your Full Name"
               type="text"
               required
-              placeholder="e.g. Avery Morgan"
+              placeholder="e.g. Jane Doe"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
             />

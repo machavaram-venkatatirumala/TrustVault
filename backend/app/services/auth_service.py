@@ -3,6 +3,7 @@ import secrets
 import hashlib
 from datetime import datetime, timedelta
 from flask import session, current_app
+from sqlalchemy.exc import IntegrityError
 from ..extensions import db
 from ..errors import APIError
 from ..models import User, Organization, OrganizationMembership
@@ -92,6 +93,9 @@ class AuthService:
                 "organization": organization.to_dict(),
                 "role": "admin",
             }
+        except IntegrityError:
+            db.session.rollback()
+            raise APIError("An account with this email address already exists.", status_code=409)
         except Exception:
             db.session.rollback()
             raise

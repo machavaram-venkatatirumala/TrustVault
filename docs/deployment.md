@@ -29,8 +29,8 @@ Before deploying TrustVault to production, verify each requirement:
 - [ ] **Cryptographic Secret Key**: Generate with `python -c "import secrets; print(secrets.token_hex(32))"`. Never reuse development secret keys.
 - [ ] **Database Connection String**: Production PostgreSQL URL with SSL mode required (`sslmode=require`).
 - [ ] **Strict CORS Configuration**: Set `FRONTEND_ORIGIN` to your exact production domain (e.g. `https://vault.acme.example`). No wildcards (`*`).
-- [ ] **Secure Cookies**: Ensure `SESSION_COOKIE_SECURE=true` and `SESSION_COOKIE_SAMESITE=Lax`.
-- [ ] **Disable Seed Endpoint**: Set `ENVIRONMENT=production` to disable the `/api/v1/seed` and `/simulate-tamper` endpoints.
+- [ ] **Disable Tamper Simulator in Production**: Set `ENVIRONMENT=production` to restrict the `/simulate-tamper` interview endpoint.
+- [ ] **Real Data Enforcement**: TrustVault operates on strictly real data with zero mock records or seed endpoints in production.
 - [ ] **Private Cloud Storage**: Configure `STORAGE_PROVIDER=s3` with `AWS_STORAGE_BUCKET_NAME`. Ensure the bucket is **strictly private** with public access blocked.
 - [ ] **Database Migrations**: Run Alembic migrations during continuous deployment pipelines.
 - [ ] **Rate Limiting Persistence**: Configure Redis backend for `Flask-Limiter` if scaling to multiple WSGI worker instances.

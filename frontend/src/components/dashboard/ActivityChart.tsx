@@ -32,7 +32,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
           {!hasData && (
             <div className="h-full flex flex-col items-center justify-center text-center text-xs text-text-muted p-4">
               <p className="font-medium text-text-secondary">No activity recorded in the past 7 days</p>
-              <p className="text-[11px] mt-0.5">Upload a document or seed demo data to populate real chart data.</p>
+              <p className="text-[11px] mt-0.5">Upload a document or share access to begin recording real workspace activity.</p>
             </div>
           )}
           {hasData && (

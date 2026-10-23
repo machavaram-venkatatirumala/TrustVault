@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, Sparkles, ArrowRight, KeyRound } from 'lucide-react';
+import { Shield, Eye, EyeOff, ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
@@ -87,26 +87,6 @@ export function LoginPage() {
     }
   };
 
-  const handleQuickFill = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('Password123!');
-    setErrorMessage('');
-  };
-
-  const handleAutoSeedAndLogin = async (demoEmail: string) => {
-    setLoading(true);
-    try {
-      await api.seed.seedDemo();
-      await login({ email: demoEmail, password: 'Password123!' });
-      success('Demo Workspace Ready', `Signed in as ${demoEmail}`);
-      navigate('/app');
-    } catch (err: any) {
-      error('Demo Init Failed', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background-warm flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
@@ -183,36 +163,8 @@ export function LoginPage() {
             </Button>
           </form>
 
-          {/* Quick Demo Accounts Helper for Interview */}
-          <div className="pt-2 border-t border-border">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-accent-champagne" />
-                Demo Credentials (1-Click)
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleAutoSeedAndLogin('avery.morgan@northstar.example')}
-                className="p-2 rounded-small border border-border bg-surface-subtle/50 text-left hover:border-primary/40 hover:bg-primary-soft/20 transition-colors"
-              >
-                <p className="font-semibold text-text-primary text-xs">Avery Morgan</p>
-                <p className="text-[10px] text-primary font-medium">Admin Persona</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleAutoSeedAndLogin('jordan.lee@northstar.example')}
-                className="p-2 rounded-small border border-border bg-surface-subtle/50 text-left hover:border-primary/40 hover:bg-primary-soft/20 transition-colors"
-              >
-                <p className="font-semibold text-text-primary text-xs">Jordan Lee</p>
-                <p className="text-[10px] text-text-secondary font-medium">Member Persona</p>
-              </button>
-            </div>
-          </div>
-
-          <div className="text-center pt-1">
-            <p className="text-xs text-text-secondary">
+          <div className="text-center pt-1 border-t border-border">
+            <p className="text-xs text-text-secondary mt-2">
               Don't have an organization yet?{' '}
               <Link to="/register" className="text-primary hover:underline font-semibold">
                 Create a workspace

@@ -215,6 +215,7 @@ Lists documents visible to the current user (all documents if admin; owned or ex
 Uploads a new confidential document to private storage. Computes SHA-256 byte stream hash and records audit event.
 
 - **Auth**: Required
+- **Headers**: `X-Idempotency-Key` (optional string): Client idempotency token to prevent duplicate records on network retries.
 - **Content-Type**: `multipart/form-data`
 - **Body**: `file`: Binary file payload (max 25MB).
 - **Response `201 Created`**: Returns created document metadata.
@@ -328,7 +329,7 @@ Lists active documents shared with the authenticated user.
       "document_name": "Architecture.pdf",
       "permission_level": "download",
       "can_download": true,
-      "grantor_name": "Avery Morgan",
+      "grantor_name": "Jane Doe",
       "created_at": "2026-10-23T12:00:00"
     }
   ]
@@ -358,8 +359,8 @@ Lists immutable organization audit logs with rich filtering.
   "events": [
     {
       "id": "uuid",
-      "actor_name": "Avery Morgan",
-      "actor_email": "avery@northstar.example",
+      "actor_name": "Jane Doe",
+      "actor_email": "jane@acme.example",
       "action": "document.upload",
       "resource_type": "document",
       "resource_id": "uuid",
@@ -377,14 +378,3 @@ Lists immutable organization audit logs with rich filtering.
   "total_pages": 1
 }
 ```
-
----
-
-## 6. Development Seeding
-
-### `POST /api/v1/seed`
-
-Populates development fixtures for **Northstar Advisory**.
-
-- **Auth**: None (Development only)
-- **Response `200 OK`**: Returns test credentials and organization ID.

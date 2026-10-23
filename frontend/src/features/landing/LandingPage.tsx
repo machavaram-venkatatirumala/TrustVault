@@ -125,7 +125,7 @@ export function LandingPage() {
                       <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                     </div>
                     <span className="text-[11px] font-mono text-text-muted">
-                      trustvault.internal / northstar-advisory
+                      trustvault.internal / workspace-preview
                     </span>
                     <Badge variant="success" className="text-[10px] py-0 px-1.5">
                       Encrypted
@@ -145,7 +145,7 @@ export function LandingPage() {
                             <p className="text-xs font-semibold text-text-primary">
                               Client Onboarding & Compliance.pdf
                             </p>
-                            <p className="text-[11px] text-text-muted">Uploaded by Avery Morgan • 2.4 MB</p>
+                            <p className="text-[11px] text-text-muted">Uploaded by Organization Admin • 2.4 MB</p>
                           </div>
                         </div>
                         <Badge variant="success" className="text-[11px]">

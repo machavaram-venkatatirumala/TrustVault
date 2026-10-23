@@ -6,7 +6,6 @@ from .permissions import permissions_bp
 from .audit import audit_bp
 from .members import members_bp
 from .dashboard import dashboard_bp
-from .seed import seed_bp
 
 __all__ = [
     "health_bp",
@@ -17,5 +16,4 @@ __all__ = [
     "audit_bp",
     "members_bp",
     "dashboard_bp",
-    "seed_bp",
 ]

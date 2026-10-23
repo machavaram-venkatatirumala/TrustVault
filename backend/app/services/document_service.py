@@ -22,9 +22,21 @@ class DocumentService:
         file_obj,
         user: User,
         organization: Organization,
+        idempotency_key: Optional[str] = None,
     ) -> dict:
         if not file_obj or not file_obj.filename:
             raise APIError("No file uploaded or filename missing.", status_code=400)
+
+        # 1. Check idempotency key if provided
+        if idempotency_key:
+            existing_by_key = Document.query.filter_by(
+                organization_id=organization.id,
+                owner_id=user.id,
+                idempotency_key=idempotency_key,
+                status="active",
+            ).first()
+            if existing_by_key:
+                return existing_by_key.to_dict()
 
         raw_filename = file_obj.filename
         clean_filename = sanitize_filename(raw_filename)
@@ -62,6 +74,20 @@ class DocumentService:
         # Calculate authoritative SHA-256 on actual file bytes
         sha256_hash = calculate_sha256_bytes(file_bytes)
 
+        # 2. Prevent accidental rapid double-click duplicate creation (within 10 seconds)
+        from datetime import timedelta
+        recent_window = datetime.utcnow() - timedelta(seconds=10)
+        recent_duplicate = Document.query.filter(
+            Document.organization_id == organization.id,
+            Document.owner_id == user.id,
+            Document.original_filename == clean_filename,
+            Document.sha256_hash == sha256_hash,
+            Document.status == "active",
+            Document.created_at >= recent_window,
+        ).first()
+        if recent_duplicate:
+            return recent_duplicate.to_dict()
+
         # Generate unique opaque storage key
         doc_id = str(uuid.uuid4())
         storage_key = generate_opaque_storage_key(organization.id, doc_id)
@@ -86,6 +112,7 @@ class DocumentService:
                 content_type=content_type,
                 size_bytes=size_bytes,
                 sha256_hash=sha256_hash,
+                idempotency_key=idempotency_key,
                 status="active",
                 last_verified_at=datetime.utcnow(),
                 last_verification_status="verified",

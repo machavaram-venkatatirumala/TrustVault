@@ -44,11 +44,12 @@ export function UploadModal({ open, onClose, onSuccess }: UploadModalProps) {
   };
 
   const handleSubmit = async () => {
-    if (!file) return;
+    if (!file || uploading) return;
 
     setUploading(true);
     try {
-      const res = await api.documents.upload(file);
+      const idempotencyKey = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const res = await api.documents.upload(file, idempotencyKey);
       success('Document Uploaded', `${res.original_filename} has been securely stored with SHA-256 digest.`);
       setFile(null);
       onSuccess();

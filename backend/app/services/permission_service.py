@@ -45,7 +45,7 @@ class PermissionService:
 
         recipient_user = db.session.get(User, recipient_user_id)
 
-        # Invalidate any existing active grant for this document & recipient
+        # Invalidate or reuse any existing active grant for this document & recipient
         now = datetime.utcnow()
         existing = DocumentPermission.query.filter(
             DocumentPermission.document_id == document.id,
@@ -53,7 +53,9 @@ class PermissionService:
             DocumentPermission.revoked_at.is_(None),
         ).first()
 
-        if existing:
+        if existing and existing.is_active:
+            if existing.permission_level == permission_level and existing.expires_at == expires_at:
+                return existing.to_dict()
             existing.revoked_at = now
             db.session.flush()
 

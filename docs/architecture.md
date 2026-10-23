@@ -212,15 +212,18 @@ sequenceDiagram
 
 ---
 
-## 6. Real-Time Interview Demonstration Features
+## 6. Real Data Architecture & Security Guarantees
 
-To enable compelling technical interview walkthroughs without mock data or complex setup:
-1. **Interactive Seed Endpoint (`POST /api/v1/seed`)**:
-   - Re-creates the fictional **Northstar Advisory** workspace.
-   - Populates 3 realistic personas (Avery Morgan - Admin, Jordan Lee - Member, Taylor Brooks - Member).
-   - Generates 5 private files on disk with SHA-256 digests and realistic audit trails.
-2. **One-Click Persona Switcher**:
-   - Positioned in the application Topbar. Allows switching instantly between Admin and Member personas with a single click to demonstrate RBAC and permission revocation live.
+TrustVault enforces a strict **Real Data Only** policy across all environments:
+1. **Zero Mock or Demo Data**:
+   - Genuinely empty initial state: New tenants start with zero documents, zero permissions, and zero activity logs.
+   - Clean authentic empty states with actionable workflows (e.g., *"No documents yet — Upload your first document to begin managing access and verifying integrity."*).
+   - No mock arrays, fallback fixtures, or synthetic trends.
+2. **Duplicate Prevention & Idempotency**:
+   - **User Registrations**: Normalized emails with DB unique constraint; simultaneous race conditions caught and returned as `409 Conflict`.
+   - **Memberships**: Unique constraint on `(organization_id, user_id)` preventing duplicate membership entries.
+   - **Document Uploads**: Client-generated `X-Idempotency-Key` persisted in DB with composite index; rapid double-click window (10s) deduplication returning existing document without duplicate storage allocation.
+   - **Permission Grants**: Idempotent permission checking reuses active grants with matching roles without duplicating audit events.
 3. **Cryptographic Tamper Simulator (`POST /api/v1/documents/:id/simulate-tamper`)**:
    - Flips bits in the physical storage object on disk without touching database metadata.
    - Enables demonstrating how TrustVault immediately catches bit corruption or unauthorized storage manipulation with a clear "Digest Mismatch" alert and audit log entry.

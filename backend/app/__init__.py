@@ -12,7 +12,6 @@ from .routes import (
     audit_bp,
     members_bp,
     dashboard_bp,
-    seed_bp,
 )
 
 
@@ -52,7 +51,6 @@ def create_app(config_class=Config):
     app.register_blueprint(audit_bp, url_prefix=api_prefix)
     app.register_blueprint(members_bp, url_prefix=api_prefix)
     app.register_blueprint(dashboard_bp, url_prefix=api_prefix)
-    app.register_blueprint(seed_bp, url_prefix=api_prefix)
 
     # Auto-create tables on startup in development/testing mode
     with app.app_context():

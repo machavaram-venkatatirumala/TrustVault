@@ -2,7 +2,7 @@
 
 > **“Every document accounted for. Every permission intentional.”**
 
-[![Backend Tests](https://img.shields.io/badge/backend%20tests-16%20passed-207B61?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests)
+[![Backend Tests](https://img.shields.io/badge/backend%20tests-26%20passed-207B61?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests)
 [![Frontend Tests](https://img.shields.io/badge/frontend%20tests-10%20passed-207B61?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tests)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tsconfig.json)
 [![Security](https://img.shields.io/badge/Auth-Argon2id%20%7C%20RBAC-34486B?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/security.md)
@@ -48,50 +48,47 @@ Built from scratch with a **Forward Deployed Engineer (FDE)** mindset, TrustVaul
 
 ## 🚀 Technical Interview Demonstration Script
 
-The application includes built-in features to make live technical interview demonstrations effortless without fake data:
+The application is built strictly against real PostgreSQL/SQLite databases and private storage without artificial mocks, pre-seeded accounts, or fabricated data:
 
-### Step 1: Initialize Demo Data (1-Click)
-- Navigate to `http://localhost:5173/login`.
-- Under **Demo Credentials (1-Click)**, click **Avery Morgan (Admin Persona)**.
-- TrustVault triggers `POST /api/v1/seed`, initializing the fictional **Northstar Advisory** workspace with 3 realistic members, 5 pre-uploaded documents with SHA-256 digests, active grants, and audit events.
+### Step 1: Create a Real Organization Workspace
+- Navigate to `http://localhost:5173/register`.
+- Enter your real organization name (e.g. `Acme Security Inc`), full name, email, and password.
+- TrustVault validates the input, normalizes the email, establishes the tenant organization, hashes the password using Argon2id, assigns you as the founding **Organization Administrator**, and establishes an authenticated session.
 
-### Step 2: Explain Dashboard Telemetry
-- Show the Overview Dashboard: Total documents (5), Active members (3), Shared documents (2), and recent security events.
-- Highlight the **7-Day Activity Chart** powered by Recharts, showing database-aggregated event trends.
+### Step 2: Observe Genuine Empty Workspace Telemetry
+- Upon landing on the **Overview Dashboard**, observe that metrics reflect genuine database reality:
+  - Total Documents: `0`
+  - Active Members: `1` (yourself)
+  - Shared Documents: `0`
+  - Active Grants: `0`
+- The **Activity Chart** displays a clean empty state: *"No activity recorded in the past 7 days"* with an invitation to begin uploading documents.
 
-### Step 3: Upload a Document & Inspect SHA-256 Digest
-- Click **Upload Document** and drag in a confidential file (PDF, DOCX, XLSX, PNG).
-- Observe the server calculating the SHA-256 hash from raw file bytes, assigning an opaque UUID storage key, and displaying the verified status badge.
+### Step 3: Upload a Document & Inspect Authoritative SHA-256
+- Click **Upload Document** and drag in a confidential file (PDF, DOCX, XLSX, PNG, etc.).
+- TrustVault enforces duplicate protection: repeated clicks or network retries with `X-Idempotency-Key` return the existing document without creating duplicate rows or orphaned storage files.
+- The server computes the authoritative SHA-256 byte stream hash, stores the file under an opaque UUID storage key, and updates the dashboard metrics immediately.
 
-### Step 4: Grant Access to a Member
-- Click **Share** on any document. Select **Jordan Lee (Member)**.
-- Set permission to **View Only** or **Download Allowed**. Optionally add an expiration date.
-- Submit the grant; observe the immediate audit log recording the permission event.
+### Step 4: Invite a Teammate & Verify Duplicate Prevention
+- Open **Members** (accessible only to administrators).
+- Click **Invite Member** and enroll a teammate. If the email is already in the organization, duplicate creation is rejected.
+- Open an incognito browser window, log in as the invited member, and observe that administrator links (**Audit Center** and **Members**) are strictly concealed.
 
-### Step 5: Switch Personas Live & Verify RBAC
-- In the Topbar, click the **Demo Persona Switcher** and select **Jordan Lee (Member)**.
-- Notice the application shell immediately adapts:
-  - **Audit Center** and **Members** navigation links disappear from the sidebar.
-  - Attempting to visit `/app/audit` directly results in a 403 Forbidden rejection.
-  - Navigate to **Shared with Me** to access the granted document.
+### Step 5: Grant and Revoke Access with Instant Audit Trail
+- As the administrator, click **Manage Access** on any document and grant `view` or `download` permissions to the teammate.
+- The grant request is idempotent: repeating it with identical policy updates or reuses the active grant rather than generating duplicate records.
+- As the member, refresh **Shared with me** to view and download the authorized document.
+- Revoke access from the administrator panel: subsequent member requests are immediately rejected with HTTP `403 Forbidden`.
 
-### Step 6: Revoke Access & Observe Instant Enforcement
-- Switch back to **Avery Morgan (Admin)** via the Topbar switcher.
-- Open **Access Permissions**, locate Jordan's grant, and click **Revoke Access**.
-- Switch back to **Jordan Lee** and attempt to download the document.
-- TrustVault denies the request with HTTP `403 Forbidden` and records an unauthorized access denial in the audit log.
-
-### Step 7: Demonstrate Cryptographic Tamper Detection
-- As **Avery Morgan**, open **Documents** and click on any document row to view details.
-- Click **Simulate Storage Tamper**: This flips bits in the physical storage object on disk while leaving database metadata untouched.
+### Step 6: Demonstrate Cryptographic Tamper Detection
+- Open **Documents** and inspect the document's cryptographic integrity drawer.
+- Click **Simulate Storage Tamper**: This intentionally inverts bits in the physical storage object on disk while leaving database metadata untouched.
 - Click **Verify Cryptographic Integrity**:
-  - The backend reads the physical file bytes from disk, re-computes the SHA-256 digest, compares it in constant time against the database digest, and flags **Digest Mismatch**!
-  - The audit log immediately records an `integrity.verify_mismatch` security alert.
+  - The backend re-hashes physical file bytes from disk, detects the byte divergence via constant-time comparison, flags **Digest Mismatch**, and writes an `integrity.verify_mismatch` security audit event.
 
-### Step 8: Review the Audit Center
-- Open **Audit Center** to show the complete investigation trail:
+### Step 7: Review the Immutable Audit Center
+- Open **Audit Center** to review real, persisted audit logs:
   - Timestamp, actor name, action, resource, outcome, and metadata payload.
-  - Filter by action (`document.upload`, `permission.revoke`, `integrity.verify_mismatch`) or outcome (`success`, `failure`, `denied`).
+  - Filter by action (`document.upload`, `permission.grant`, `permission.revoke`, `integrity.verify_mismatch`) or outcome (`success`, `failure`, `denied`).
 
 ---
 
@@ -235,12 +232,10 @@ dist/assets/index-C3G2W_Tc.js   1,113.07 kB
 
 ---
 
-## 👥 Seeded Demo Accounts
+## 🛡️ Real Data & Duplicate Prevention Guarantees
 
-| Name | Role | Email | Password |
-| :--- | :--- | :--- | :--- |
-| **Avery Morgan** | Organization Admin | `avery.morgan@northstar.example` | `Password123!` |
-| **Jordan Lee** | Organization Member | `jordan.lee@northstar.example` | `Password123!` |
-| **Taylor Brooks** | Organization Member | `taylor.brooks@northstar.example` | `Password123!` |
-
-*(Can be re-seeded at any time by calling `POST /api/v1/seed` or clicking the demo persona switcher)*
+- **Zero Mock / Demo Policy**: No hardcoded arrays, fabricated charts, synthetic audit logs, or demo seed routes exist in the runtime application.
+- **Normalization**: User emails are normalized (lowercase and whitespace-stripped) at both registration and login with database-level uniqueness enforcement.
+- **Upload Idempotency**: Document uploads support client-provided `X-Idempotency-Key` headers and automatic 10-second double-click deduplication to prevent duplicate records or orphaned files.
+- **Permission Deduplication**: Repeated permission grants for the same recipient and document are idempotent and reuse the active policy rather than duplicating rows.
+- **Authentic Empty States**: An empty database renders clean informative empty states across all screens rather than falling back to placeholders.

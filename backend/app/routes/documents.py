@@ -38,10 +38,12 @@ def upload_document():
         raise APIError("No file part provided in request.", status_code=400)
 
     file_obj = request.files["file"]
+    idempotency_key = request.headers.get("X-Idempotency-Key") or request.form.get("idempotency_key")
     result = DocumentService.upload_document(
         file_obj=file_obj,
         user=g.current_user,
         organization=g.current_org,
+        idempotency_key=idempotency_key,
     )
     return jsonify(result), 201
 

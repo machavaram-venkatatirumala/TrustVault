@@ -154,8 +154,12 @@ export function AuditCenterPage() {
         ) : events.length === 0 ? (
           <EmptyState
             icon={Activity}
-            title={search || actionFilter ? 'No matching audit records' : 'No audit records found'}
-            description="All platform interactions are automatically serialized and stored in this immutable audit log."
+            title={search || actionFilter || outcomeFilter ? 'No matching audit records' : 'No activity recorded yet'}
+            description={
+              search || actionFilter || outcomeFilter
+                ? 'Try clearing or modifying your filter criteria.'
+                : 'Security events will appear here as actions occur in your workspace.'
+            }
           />
         ) : (
           <Table>

@@ -197,13 +197,13 @@ export function DocumentsPage() {
         ) : documents.length === 0 ? (
           <EmptyState
             icon={FileText}
-            title={search || fileType ? 'No matching documents' : 'No documents in workspace'}
+            title={search || fileType ? 'No matching documents' : 'No documents yet'}
             description={
               search || fileType
                 ? 'Try adjusting your search criteria or clearing filters.'
-                : 'Upload your first confidential document to initiate secure storage and SHA-256 verification.'
+                : 'Upload your first document to begin managing access and verifying integrity.'
             }
-            actionLabel="Upload Document"
+            actionLabel="Upload document"
             onAction={() => setUploadOpen(true)}
           />
         ) : (
