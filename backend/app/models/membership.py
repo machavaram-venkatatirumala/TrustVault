@@ -24,6 +24,9 @@ class OrganizationMembership(db.Model):
     joined_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     organization = db.relationship("Organization", back_populates="memberships")
     user = db.relationship("User", back_populates="memberships")

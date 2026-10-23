@@ -30,6 +30,9 @@ class DocumentPermission(db.Model):
     expires_at = db.Column(db.DateTime, nullable=True)
     revoked_at = db.Column(db.DateTime, nullable=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     document = db.relationship("Document", back_populates="permissions")
     grantor = db.relationship("User", foreign_keys=[granted_by])

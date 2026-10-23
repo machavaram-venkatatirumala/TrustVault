@@ -21,6 +21,9 @@ class User(db.Model):
     reset_token_hash = db.Column(db.String(64), nullable=True, index=True)
     reset_token_expires_at = db.Column(db.DateTime, nullable=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     memberships = db.relationship(
         "OrganizationMembership",

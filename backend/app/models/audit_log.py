@@ -34,6 +34,9 @@ class AuditLog(db.Model):
     user_agent = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     organization = db.relationship("Organization", back_populates="audit_logs")
     actor = db.relationship("User", foreign_keys=[actor_user_id])

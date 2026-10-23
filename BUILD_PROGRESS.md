@@ -7,6 +7,7 @@
 ---
 
 ## Phase 1 — Workspace & Foundation
+
 - [x] Inspect workspace and environment (Node v24, Python 3.13, Docker v29)
 - [x] Initialize Git repository, `.gitignore`, `.env.example`, `docker-compose.yml`
 - [x] Create directory structure (`frontend/`, `backend/`, `docs/`, `storage/`)
@@ -20,6 +21,7 @@
 - [x] Set up frontend base UI primitives and layout shell
 
 ## Phase 2 — Visual Product & Design System
+
 - [x] Public Landing Page (Navigation, Hero with interactive product preview, Benefits, How it works, Security, Footer)
 - [x] Authentication Screens (Login, Register with client-side & server-side validation)
 - [x] Authenticated Application Shell (Sidebar with role awareness, Topbar with 1-click persona switcher, Mobile drawer)
@@ -35,6 +37,7 @@
 - [x] Mobile & Responsive layouts across viewports (Drawer navigation, responsive tables, touch targets)
 
 ## Phase 3 — Backend Implementation
+
 - [x] Authentication API (`/api/v1/auth/register`, `/login`, `/logout`, `/me`, `/change-password`)
 - [x] Argon2id password hashing and session management (HttpOnly cookie / Bearer token fallback)
 - [x] Organization membership and role-based access control (Admin vs. Member authorization decorators)
@@ -54,6 +57,7 @@
 - [x] Database seed command for development demo ("Northstar Advisory", admin Avery Morgan, members Jordan Lee & Taylor Brooks)
 
 ## Phase 4 — Frontend/Backend Integration
+
 - [x] Typed API client with central error handling and session management
 - [x] Connect Authentication and Profile state
 - [x] Connect Document Library, Upload, and Delete
@@ -64,6 +68,7 @@
 - [x] Connect Dashboard metrics and real Recharts data
 
 ## Phase 5 — Testing & Hardening
+
 - [x] Backend test suite with Pytest (**18/18 passed** in 3.58s)
   - User registration & duplicate email rejection
   - Argon2id password hashing & timing-safe compare
@@ -85,6 +90,7 @@
 - [x] Security headers and path traversal checks verified
 
 ## Phase 6 — Documentation & Delivery
+
 - [x] `README.md` with Windows PowerShell setup commands, architecture diagrams, and complete interview demo walkthrough
 - [x] `docs/architecture.md` (System overview, multi-tier design, ER diagram, cryptographic integrity flow)
 - [x] `docs/security.md` (Threat model, OWASP Top 10 defense, Argon2id, path traversal, magic bytes, audit immutability)

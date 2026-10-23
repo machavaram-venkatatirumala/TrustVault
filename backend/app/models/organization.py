@@ -16,6 +16,9 @@ class Organization(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     memberships = db.relationship(
         "OrganizationMembership",

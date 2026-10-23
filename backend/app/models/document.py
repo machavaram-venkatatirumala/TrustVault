@@ -35,6 +35,9 @@ class Document(db.Model):
     )
     deleted_at = db.Column(db.DateTime, nullable=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     # Relationships
     organization = db.relationship("Organization", back_populates="documents")
     owner = db.relationship("User", back_populates="owned_documents")
