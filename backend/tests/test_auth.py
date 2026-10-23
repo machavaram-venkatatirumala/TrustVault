@@ -71,3 +71,47 @@ def test_logout(client, test_setup):
 def test_unauthenticated_access_rejection(client):
     res = client.get("/api/v1/documents")
     assert res.status_code == 401
+
+
+def test_password_reset_workflow(client, test_setup):
+    email = test_setup["admin_email"]
+
+    # 1. Request password reset for existing email
+    req_res = client.post("/api/v1/auth/forgot-password", json={"email": email})
+    assert req_res.status_code == 200
+    data = req_res.get_json()
+    assert "instructions have been generated" in data["message"]
+    token = data.get("dev_reset_token")
+    assert token is not None
+
+    # 2. Request for non-existent email returns same message (no account enumeration)
+    non_existent = client.post("/api/v1/auth/forgot-password", json={"email": "nobody@nowhere.example"})
+    assert non_existent.status_code == 200
+    assert "instructions have been generated" in non_existent.get_json()["message"]
+    assert "dev_reset_token" not in non_existent.get_json()
+
+    # 3. Reject reset with invalid or short password
+    short_pw = client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "short"})
+    assert short_pw.status_code == 400
+
+    # 4. Reject reset with corrupted token
+    corrupt = client.post("/api/v1/auth/reset-password", json={"token": "invalid_corrupted_token", "new_password": "BrandNewPassword123!"})
+    assert corrupt.status_code == 400
+
+    # 5. Successful reset with valid token
+    success_reset = client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "BrandNewPassword123!"})
+    assert success_reset.status_code == 200
+    assert "successfully reset" in success_reset.get_json()["message"]
+
+    # 6. Verify old password fails
+    old_login = client.post("/api/v1/auth/login", json={"email": email, "password": test_setup["password"]})
+    assert old_login.status_code == 401
+
+    # 7. Verify new password succeeds
+    new_login = client.post("/api/v1/auth/login", json={"email": email, "password": "BrandNewPassword123!"})
+    assert new_login.status_code == 200
+
+    # 8. Verify token cannot be re-used (single-use token)
+    reuse = client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "AnotherNewPassword123!"})
+    assert reuse.status_code == 400
+

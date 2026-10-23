@@ -67,3 +67,44 @@ def test_document_deletion(client, test_setup):
     # Subsequent fetch should be 404
     get_res = client.get(f"/api/v1/documents/{doc_id}")
     assert get_res.status_code == 404
+
+
+def test_document_rename(client, test_setup):
+    login(client, test_setup["admin_email"], test_setup["password"])
+
+    file_content = b"Content to rename."
+    res = client.post(
+        "/api/v1/documents",
+        data={"file": (io.BytesIO(file_content), "Original_Name.pdf")},
+        content_type="multipart/form-data",
+    )
+    doc_id = res.get_json()["id"]
+
+    # 1. Successful rename by admin
+    rename_res = client.patch(
+        f"/api/v1/documents/{doc_id}",
+        json={"filename": "Renamed_Document.pdf"},
+    )
+    assert rename_res.status_code == 200
+    assert rename_res.get_json()["original_filename"] == "Renamed_Document.pdf"
+
+    # Verify get reflects the new name
+    get_res = client.get(f"/api/v1/documents/{doc_id}")
+    assert get_res.status_code == 200
+    assert get_res.get_json()["original_filename"] == "Renamed_Document.pdf"
+
+    # 2. Rejection of empty filename
+    empty_res = client.patch(
+        f"/api/v1/documents/{doc_id}",
+        json={"filename": "   "},
+    )
+    assert empty_res.status_code == 400
+
+    # 3. Rejection of rename by unauthorized member (who is not owner)
+    login(client, test_setup["member_email"], test_setup["password"])
+    unauth_rename = client.patch(
+        f"/api/v1/documents/{doc_id}",
+        json={"filename": "Hacked_Name.pdf"},
+    )
+    assert unauth_rename.status_code == 403
+

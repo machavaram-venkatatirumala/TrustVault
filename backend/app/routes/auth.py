@@ -71,3 +71,23 @@ def change_password():
         org_id=g.current_org.id,
     )
     return jsonify(result), 200
+
+
+@auth_bp.route("/auth/forgot-password", methods=["POST"])
+@limiter.limit("5 per minute")
+def forgot_password():
+    data = request.get_json() or {}
+    email = data.get("email")
+    result = AuthService.request_password_reset(email=email)
+    return jsonify(result), 200
+
+
+@auth_bp.route("/auth/reset-password", methods=["POST"])
+@limiter.limit("5 per minute")
+def reset_password():
+    data = request.get_json() or {}
+    token = data.get("token")
+    new_password = data.get("new_password")
+    result = AuthService.reset_password(token=token, new_password=new_password)
+    return jsonify(result), 200
+

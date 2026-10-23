@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, Sparkles, ArrowRight } from 'lucide-react';
+import { Shield, Eye, EyeOff, Sparkles, ArrowRight, KeyRound } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { api } from '../../lib/api';
@@ -14,9 +15,56 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Forgot password modal state
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotStep, setForgotStep] = useState<'request' | 'reset'>('request');
+  const [resetToken, setResetToken] = useState('');
+  const [newResetPassword, setNewResetPassword] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
+
   const { login, refetch } = useAuth();
   const { success, error } = useToast();
   const navigate = useNavigate();
+
+  const handleRequestReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+    setForgotLoading(true);
+    setForgotMessage('');
+    try {
+      const res = await api.auth.forgotPassword({ email: forgotEmail });
+      setForgotMessage(res.message);
+      if (res.dev_reset_token) {
+        setResetToken(res.dev_reset_token);
+      }
+      setForgotStep('reset');
+    } catch (err: any) {
+      error('Request Failed', err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleCompleteReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetToken || !newResetPassword) return;
+    setForgotLoading(true);
+    try {
+      const res = await api.auth.resetPassword({ token: resetToken, new_password: newResetPassword });
+      success('Password Reset', res.message);
+      setForgotOpen(false);
+      setForgotStep('request');
+      setResetToken('');
+      setNewResetPassword('');
+      setEmail(forgotEmail);
+    } catch (err: any) {
+      error('Reset Failed', err.message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +163,21 @@ export function LoginPage() {
               }
             />
 
+            <div className="flex items-center justify-end -mt-1 mb-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotOpen(true);
+                  setForgotEmail(email);
+                  setForgotStep('request');
+                  setForgotMessage('');
+                }}
+                className="text-xs text-primary hover:underline font-medium"
+              >
+                Forgot password?
+              </button>
+            </div>
+
             <Button type="submit" size="md" loading={loading} className="w-full text-xs font-semibold">
               Sign In
             </Button>
@@ -158,6 +221,96 @@ export function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Forgot / Reset Password Dialog */}
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="max-w-md">
+          {forgotStep === 'request' ? (
+            <form onSubmit={handleRequestReset}>
+              <DialogHeader>
+                <DialogTitle>Reset Password</DialogTitle>
+                <DialogDescription>
+                  Enter your registered work email to receive password reset authorization.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="py-4 space-y-3">
+                <Input
+                  label="Work Email"
+                  type="email"
+                  required
+                  placeholder="name@company.example"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setForgotOpen(false)}
+                  disabled={forgotLoading}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" loading={forgotLoading} disabled={!forgotEmail}>
+                  Send Reset Link
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            <form onSubmit={handleCompleteReset}>
+              <DialogHeader>
+                <DialogTitle>Set New Password</DialogTitle>
+                <DialogDescription>
+                  {forgotMessage || 'Enter the verification token and choose a new secure password.'}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="py-4 space-y-3">
+                <Input
+                  label="Reset Token"
+                  type="text"
+                  required
+                  placeholder="Paste token or use auto-filled dev token"
+                  value={resetToken}
+                  onChange={(e) => setResetToken(e.target.value)}
+                />
+
+                <Input
+                  label="New Password"
+                  type="password"
+                  required
+                  placeholder="Minimum 8 characters"
+                  value={newResetPassword}
+                  onChange={(e) => setNewResetPassword(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setForgotStep('request')}
+                  disabled={forgotLoading}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  loading={forgotLoading}
+                  disabled={!resetToken || newResetPassword.length < 8}
+                >
+                  Confirm Reset
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

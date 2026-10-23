@@ -373,3 +373,43 @@ class DocumentService:
         )
 
         return {"message": "Document removed successfully."}
+
+    @staticmethod
+    def rename_document(
+        document_id: str,
+        new_filename: str,
+        user: User,
+        organization: Organization,
+        is_admin: bool,
+    ) -> dict:
+        document = Document.query.filter_by(id=document_id, status="active").first()
+        if not document or document.organization_id != organization.id:
+            raise APIError("Document not found.", status_code=404)
+
+        if not is_admin and document.owner_id != user.id:
+            raise APIError("You are not authorized to rename this document.", status_code=403)
+
+        clean_name = (new_filename or "").strip()
+        if not clean_name:
+            raise APIError("New document filename cannot be empty.", status_code=400)
+
+        sanitized_name = sanitize_filename(clean_name)
+        if not sanitized_name:
+            raise APIError("Invalid filename provided.", status_code=400)
+
+        old_filename = document.original_filename
+        document.original_filename = sanitized_name
+        document.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        AuditService.record(
+            organization_id=organization.id,
+            actor_user_id=user.id,
+            action="document.rename",
+            resource_type="document",
+            resource_id=document.id,
+            outcome="success",
+            metadata={"old_name": old_filename, "new_name": sanitized_name},
+        )
+
+        return document.to_dict()

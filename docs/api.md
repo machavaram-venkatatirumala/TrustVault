@@ -102,7 +102,38 @@ Fetches authenticated user identity and active tenant context.
 - **Auth**: Required
 - **Response `200 OK`**: Returns user, organization, and role.
 
+### `POST /api/v1/auth/forgot-password`
+Initiates a password reset workflow. Does not disclose whether the email address exists in the system (anti-enumeration).
+- **Rate Limit**: 5 requests / minute
+- **Request Body**:
+  ```json
+  { "email": "jane@acme.example" }
+  ```
+- **Response `200 OK`**:
+  ```json
+  {
+    "message": "If an active account with that email exists, password reset instructions have been generated.",
+    "dev_reset_token": "string (development/test mode only)"
+  }
+  ```
+
+### `POST /api/v1/auth/reset-password`
+Completes password reset using a single-use SHA-256 hashed verification token.
+- **Rate Limit**: 5 requests / minute
+- **Request Body**:
+  ```json
+  {
+    "token": "raw_token_string",
+    "new_password": "NewSecurePassword123!"
+  }
+  ```
+- **Response `200 OK`**:
+  ```json
+  { "message": "Password has been successfully reset. You may now sign in." }
+  ```
+
 ---
+
 
 ## 3. Documents
 
@@ -144,6 +175,15 @@ Uploads a new confidential document to private storage. Computes SHA-256 byte st
 - **Content-Type**: `multipart/form-data`
 - **Body**: `file`: Binary file payload (max 25MB).
 - **Response `201 Created`**: Returns created document metadata.
+
+### `PATCH /api/v1/documents/<id>`
+Renames the display filename of a confidential document without altering its opaque storage key or cryptographic hash.
+- **Auth**: Required (Owner or Admin)
+- **Request Body**:
+  ```json
+  { "filename": "Updated_Proposal.pdf" }
+  ```
+- **Response `200 OK`**: Returns updated document metadata.
 
 ### `GET /api/v1/documents/<id>/download`
 Streams authorized file payload with safe attachment headers.

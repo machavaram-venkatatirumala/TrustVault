@@ -59,6 +59,25 @@ def get_document(document_id):
     return jsonify(doc.to_dict(include_permissions=True)), 200
 
 
+@documents_bp.route("/documents/<document_id>", methods=["PATCH"])
+@login_required
+def rename_document(document_id):
+    data = request.get_json() or {}
+    new_filename = data.get("filename") or data.get("original_filename")
+    if not new_filename:
+        raise APIError("New filename is required.", status_code=400)
+
+    is_admin = g.current_membership.role == "admin"
+    result = DocumentService.rename_document(
+        document_id=document_id,
+        new_filename=new_filename,
+        user=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify(result), 200
+
+
 @documents_bp.route("/documents/<document_id>/download", methods=["GET"])
 @login_required
 def download_document(document_id):

@@ -1,6 +1,8 @@
 import re
-from datetime import datetime
-from flask import session
+import secrets
+import hashlib
+from datetime import datetime, timedelta
+from flask import session, current_app
 from ..extensions import db
 from ..errors import APIError
 from ..models import User, Organization, OrganizationMembership
@@ -183,3 +185,82 @@ class AuthService:
             outcome="success",
         )
         return {"message": "Password changed successfully."}
+
+    @staticmethod
+    def request_password_reset(email: str) -> dict:
+        normalized_email = (email or "").strip().lower()
+        if not normalized_email or "@" not in normalized_email:
+            raise APIError("A valid email address is required.", status_code=400)
+
+        user = User.query.filter_by(email=normalized_email, is_active=True).first()
+        raw_token = None
+
+        if user:
+            raw_token = secrets.token_urlsafe(32)
+            token_hash = hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
+            user.reset_token_hash = token_hash
+            user.reset_token_expires_at = datetime.utcnow() + timedelta(hours=1)
+            db.session.commit()
+
+            membership = OrganizationMembership.query.filter_by(
+                user_id=user.id, status="active"
+            ).first()
+            if membership:
+                AuditService.record(
+                    organization_id=membership.organization_id,
+                    actor_user_id=user.id,
+                    action="auth.password_reset_requested",
+                    resource_type="user",
+                    resource_id=user.id,
+                    outcome="success",
+                    metadata={"email": user.email},
+                )
+
+        response = {
+            "message": "If an active account with that email exists, password reset instructions have been generated."
+        }
+
+        # In development/test environments, surface token for automated and local workflow verification
+        if current_app.config.get("ENVIRONMENT") != "production" and raw_token:
+            response["dev_reset_token"] = raw_token
+
+        return response
+
+    @staticmethod
+    def reset_password(token: str, new_password: str) -> dict:
+        token = (token or "").strip()
+        if not token:
+            raise APIError("Reset token is required.", status_code=400)
+        if not new_password or len(new_password) < 8:
+            raise APIError("New password must be at least 8 characters long.", status_code=400)
+
+        token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+        now = datetime.utcnow()
+        user = User.query.filter(
+            User.reset_token_hash == token_hash,
+            User.reset_token_expires_at.isnot(None),
+            User.reset_token_expires_at > now,
+        ).first()
+
+        if not user:
+            raise APIError("Invalid or expired password reset token.", status_code=400)
+
+        user.password_hash = hash_password(new_password)
+        user.reset_token_hash = None
+        user.reset_token_expires_at = None
+        db.session.commit()
+
+        membership = OrganizationMembership.query.filter_by(
+            user_id=user.id, status="active"
+        ).first()
+        if membership:
+            AuditService.record(
+                organization_id=membership.organization_id,
+                actor_user_id=user.id,
+                action="auth.password_reset_completed",
+                resource_type="user",
+                resource_id=user.id,
+                outcome="success",
+            )
+
+        return {"message": "Password has been successfully reset. You may now sign in."}

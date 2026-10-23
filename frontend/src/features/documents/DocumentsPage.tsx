@@ -12,12 +12,14 @@ import {
   Eye,
   Filter,
   X,
+  Pencil,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/table';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '../../components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
 import { EmptyState } from '../../components/ui/empty-state';
 import { IntegrityBadge } from '../../components/documents/IntegrityBadge';
 import { UploadModal } from '../../components/documents/UploadModal';
@@ -42,6 +44,31 @@ export function DocumentsPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selectedDocForShare, setSelectedDocForShare] = useState<DocumentItem | null>(null);
   const [selectedDocForDetails, setSelectedDocForDetails] = useState<DocumentItem | null>(null);
+  const [selectedDocForRename, setSelectedDocForRename] = useState<DocumentItem | null>(null);
+  const [newFilename, setNewFilename] = useState('');
+  const [renaming, setRenaming] = useState(false);
+
+  const handleStartRename = (doc: DocumentItem) => {
+    setSelectedDocForRename(doc);
+    setNewFilename(doc.original_filename);
+  };
+
+  const handleSaveRename = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedDocForRename || !newFilename.trim()) return;
+
+    setRenaming(true);
+    try {
+      await api.documents.rename(selectedDocForRename.id, newFilename.trim());
+      success('Document Renamed', 'Filename updated successfully.');
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      setSelectedDocForRename(null);
+    } catch (err: any) {
+      error('Rename Failed', err.message);
+    } finally {
+      setRenaming(false);
+    }
+  };
 
   // Fetch document list
   const { data, isLoading, refetch } = useQuery({
@@ -279,10 +306,16 @@ export function DocumentsPage() {
                           </DropdownMenuItem>
 
                           {canManage && (
-                            <DropdownMenuItem onClick={() => setSelectedDocForShare(doc)}>
-                              <Share2 className="w-3.5 h-3.5" />
-                              <span>Manage Access</span>
-                            </DropdownMenuItem>
+                            <>
+                              <DropdownMenuItem onClick={() => setSelectedDocForShare(doc)}>
+                                <Share2 className="w-3.5 h-3.5" />
+                                <span>Manage Access</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleStartRename(doc)}>
+                                <Pencil className="w-3.5 h-3.5" />
+                                <span>Rename Document</span>
+                              </DropdownMenuItem>
+                            </>
                           )}
 
                           <DropdownMenuItem onClick={() => handleVerify(doc)}>
@@ -361,6 +394,49 @@ export function DocumentsPage() {
         onClose={() => setSelectedDocForDetails(null)}
         onRefresh={() => refetch()}
       />
+
+      {/* Rename Document Dialog */}
+      <Dialog open={Boolean(selectedDocForRename)} onOpenChange={(open) => !open && setSelectedDocForRename(null)}>
+        <DialogContent className="max-w-md">
+          <form onSubmit={handleSaveRename}>
+            <DialogHeader>
+              <DialogTitle>Rename Document</DialogTitle>
+              <DialogDescription>
+                Update the display filename. The underlying private storage key and cryptographic hash will remain unchanged.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-4 space-y-3">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-text-primary tracking-tight">
+                  New Filename
+                </label>
+                <Input
+                  value={newFilename}
+                  onChange={(e) => setNewFilename(e.target.value)}
+                  placeholder="Filename.pdf"
+                  required
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setSelectedDocForRename(null)}
+                disabled={renaming}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" loading={renaming} disabled={!newFilename.trim()}>
+                Save Name
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

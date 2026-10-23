@@ -64,13 +64,15 @@
 - [x] Connect Dashboard metrics and real Recharts data
 
 ## Phase 5 — Testing & Hardening
-- [x] Backend test suite with Pytest (**16/16 passed** in 2.96s)
+- [x] Backend test suite with Pytest (**18/18 passed** in 3.58s)
   - User registration & duplicate email rejection
   - Argon2id password hashing & timing-safe compare
   - Session establishment, rotation & logout invalidation
+  - Anti-enumeration password reset token generation & single-use reset
   - RBAC enforcement (members cannot read admin endpoints or audit logs)
   - Cross-tenant data isolation & unauthorized download blocking
   - MIME magic byte checking & file upload validation
+  - Document renaming with server authorization & audit tracking
   - SHA-256 digest computation & dynamic verification
   - Storage tamper detection (mismatch flagging)
   - Permission grant & immediate revocation enforcement

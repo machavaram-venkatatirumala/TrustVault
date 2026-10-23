@@ -18,6 +18,8 @@ class User(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
     last_login_at = db.Column(db.DateTime, nullable=True)
+    reset_token_hash = db.Column(db.String(64), nullable=True, index=True)
+    reset_token_expires_at = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     memberships = db.relationship(

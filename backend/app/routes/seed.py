@@ -159,6 +159,11 @@ def seed_database():
                     created_at=created_time,
                 )
             )
+        else:
+            file_bytes = f["content"]
+            storage.save(existing_doc.storage_key, io.BytesIO(file_bytes))
+            existing_doc.last_verification_status = "verified"
+            existing_doc.last_verified_at = datetime.utcnow()
 
     db.session.commit()
 
