@@ -1,8 +1,8 @@
 # TrustVault Build Progress
 
-**Product:** TrustVault — Secure Document Sharing with a Real Audit Trail  
-**Design System:** Atelier Cobalt (Light Theme)  
-**Status:** Complete & Fully Verified (100% Tests Passing, Production Build Passing)  
+**Product:** TrustVault — Secure Document Management, Sharing, and Verifiable Integrity  
+**Design System:** Atelier Cobalt (Curated Light `#FAF9F6` & Dark `#0D1118` Themes)  
+**Status:** Complete & Fully Verified (28/28 Backend Tests Passing, 16/16 Frontend Tests Passing, Production Build Passing)  
 
 ---
 
@@ -24,7 +24,7 @@
 
 - [x] Public Landing Page (Navigation, Hero with interactive product preview, Benefits, How it works, Security, Footer)
 - [x] Authentication Screens (Login, Register with client-side & server-side validation)
-- [x] Authenticated Application Shell (Sidebar with role awareness, Topbar with 1-click persona switcher, Mobile drawer)
+- [x] Authenticated Application Shell (Sidebar with role awareness, Topbar with workspace context, Mobile drawer)
 - [x] Dashboard View (Workspace Overview, Real DB metrics cards, Activity chart via Recharts, Recent activity table)
 - [x] Document Library (Search, filters by type/owner/sharing, sorting, pagination, document table, empty/loading states)
 - [x] Upload Workflow Dialog (Drag-and-drop, real progress indicator, validation, opaque storage key display)
@@ -33,14 +33,14 @@
 - [x] Shared With Me View (Granted documents, permission badges, authorized download actions)
 - [x] Audit Center (Administrator-only, filterable event table, actor, action, resource, outcome, metadata JSON inspector)
 - [x] Member Management View (Administrator-only, member list, role badges, status, invite modal, role adjustment, deactivation)
-- [x] Settings View (Profile info, organization details, security policies, password change)
+- [x] Settings View (Profile info, workspace details, security policies, password change, account deletion)
 - [x] Mobile & Responsive layouts across viewports (Drawer navigation, responsive tables, touch targets)
 
 ## Phase 3 — Backend Implementation
 
-- [x] Authentication API (`/api/v1/auth/register`, `/login`, `/logout`, `/me`, `/change-password`)
+- [x] Authentication API (`/api/v1/auth/register`, `/login`, `/logout`, `/me`, `/change-password`, `/profile`, `/account`)
 - [x] Argon2id password hashing and session management (HttpOnly cookie / Bearer token fallback)
-- [x] Organization membership and role-based access control (Admin vs. Member authorization decorators)
+- [x] Organization/Workspace membership and role-based access control (Admin vs. Member authorization decorators)
 - [x] Multi-tenant isolation enforcement across all queries
 - [x] Storage service (Local private filesystem storage + S3 abstraction, safe storage keys, path traversal prevention)
 - [x] Document upload endpoint (`POST /api/v1/documents`) with MIME inspection, size limits, server-side SHA-256 computation
@@ -69,8 +69,10 @@
 
 ## Phase 5 — Testing & Hardening
 
-- [x] Backend test suite with Pytest (**26/26 passed** in 4.40s)
+- [x] Backend test suite with Pytest (**28/28 passed** in 10.93s)
   - User registration & duplicate email rejection
+  - Personal workspace automatic provisioning
+  - Profile update and theme preference persistence
   - Argon2id password hashing & timing-safe compare
   - Session establishment, rotation & logout invalidation
   - Anti-enumeration password reset token generation & single-use reset
@@ -89,10 +91,14 @@
   - Double-click upload deduplication window prevents duplicate storage
   - Duplicate permission grant reuses active grant without duplicate audit entries
   - Permission revocation immediately terminates access
-- [x] Frontend test suite with Vitest & React Testing Library (**10/10 passed**)
+  - Dashboard metrics match actual database contents
+- [x] Frontend test suite with Vitest & React Testing Library (**16/16 passed**)
   - `IntegrityBadge` states (verified, mismatch, unverified, unavailable)
   - `LoginPage` form rendering, real credentials input, and validation
   - `Sidebar` RBAC link rendering (admin-only links concealed from members)
+  - `ThemeToggle` light/dark theme switching and persistence
+  - `TermsPage`, `PrivacyPage`, `CookiesPage`, `SecurityPage`, `ContactPage` rendering
+  - `CookieConsent` banner display, preference modal interaction, and acceptance
 - [x] TypeScript strict checks pass (`tsc -b` with 0 errors)
 - [x] Frontend production build succeeds (`vite build` minified output in `dist/`)
 - [x] Security headers and path traversal checks verified
@@ -102,15 +108,15 @@
 - [x] `README.md` with Windows PowerShell setup commands, architecture diagrams, and complete interview demo walkthrough
 - [x] `docs/architecture.md` (System overview, multi-tier design, ER diagram, cryptographic integrity flow, real data architecture)
 - [x] `docs/security.md` (Threat model, OWASP Top 10 defense, Argon2id, path traversal, magic bytes, audit immutability)
+- [x] `docs/privacy-and-retention.md` (Complete retention rules, account deletion workflows, and cryptographic sanitization)
 - [x] `docs/api.md` (Comprehensive REST API contract for all `/api/v1` routes with `X-Idempotency-Key`)
 - [x] `docs/deployment.md` (Production deployment with Gunicorn, Docker, Nginx, PostgreSQL, and AWS S3)
 
-## Phase 7 — Real Data Only & Duplicate Prevention (Completed)
+## Phase 7 — Real Data Only & Duplicate Prevention
 
 - [x] **Zero Mock / Demo Data Enforcement**:
   - Removed `backend/app/routes/seed.py` and deregistered all seed blueprints.
   - Removed demo persona 1-click switchers, quick-fill buttons, and reset/seed demo buttons from `Topbar` and `LoginPage`.
-  - Purged demo tenant "Northstar Advisory" (`1edaa840-7579-4131-9d35-3dedd96cb589`) and associated mock files from disk storage.
   - Verified preservation of genuine user and organization records.
 - [x] **Upload Idempotency & Deduplication**:
   - Added `idempotency_key` (indexed) to `documents` table and API schema.
@@ -122,7 +128,37 @@
   - Membership invites catch `IntegrityError` and return `409 Conflict`.
   - Permission grants verify existing active grant with matching role and reuse without creating duplicate audit events.
 - [x] **Authentic Empty States**:
-  - Document Library: *"No documents yet — Upload your first document to begin managing access and verifying integrity."*
+  - Document Library: *"No documents yet. Your secure document library starts here. Upload your first document to calculate its integrity fingerprint and manage access."*
   - Audit Center: *"No activity recorded yet — Security events will appear here as actions occur in your workspace."*
-  - Dashboard: Zero counts displayed directly (`0`); empty activity chart rendered when no events exist.
+  - Dashboard: Zero counts displayed directly (`0`); empty activity chart rendered when no events exist (*"Activity insights will appear as you use TrustVault."*).
 
+## Phase 8 — Atelier Cobalt Design System & Themes
+
+- [x] Defined complete Light palette: `#FAF9F6` background, `#FFFFFF` surface, `#3155D9` cobalt primary, `#20283B` text, `#6687F5` cornflower accent.
+- [x] Defined complete Dark palette: `#0D1118` background, `#182130` surface, `#8BA4FF` cobalt accent, `#F2F5FA` text, `#2A3546` border.
+- [x] Implemented `ThemeProvider` and `ThemeToggle` supporting Light, Dark, and System modes with immediate DOM application and local/profile persistence.
+- [x] Configured Settings page with 3-button theme selector.
+
+## Phase 9 — Original Geometric Brand Identity & Animation
+
+- [x] Designed custom vector logo combining protected document + vault enclosure + checkmark + letter "T" core.
+- [x] Created `TrustVaultLogo` component with Motion entrance animation and reduced-motion fallback.
+- [x] Created `frontend/public/favicon.svg` with the geometric mark.
+- [x] Integrated brand mark across Header, Topbar, Sidebar, LoginPage, RegisterPage, and Loading states.
+
+## Phase 10 — Legal & Governance Architecture
+
+- [x] Created `/terms` (Terms of Service, v1.2) with clear ownership, acceptable use, and limitation of liability.
+- [x] Created `/privacy` (Privacy Policy, v1.2) detailing data collection, private storage, and user rights.
+- [x] Created `/cookies` (Cookie Policy, v1.2) explaining essential authentication cookies and preference cookies.
+- [x] Created `/security` (Security & Architecture Whitepaper) explaining Argon2id, SHA-256 streaming, and RBAC.
+- [x] Created `/contact` (Support & Inquiries) with working form inputs.
+- [x] Implemented restrained `CookieConsent` banner and modal with footer reopen trigger (`Cookie Preferences`).
+- [x] Recorded terms acceptance version (`v1.2`) and timestamp during account registration.
+
+## Phase 11 — General-Purpose SaaS Experience
+
+- [x] Redesigned registration to 4 approachable fields: Full Name, Email Address, Password, Confirm Password, and Terms checkbox.
+- [x] Removed mandatory company name, corporate email, or enterprise onboarding hurdles.
+- [x] Automatically provisions an isolated Personal Workspace (`"<First Name>'s Workspace"`) with `workspace_type="personal"`.
+- [x] Implemented Profile and Workspace settings updates and permanent Account Deletion in the Danger Zone.

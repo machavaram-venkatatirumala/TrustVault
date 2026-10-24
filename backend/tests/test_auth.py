@@ -115,3 +115,43 @@ def test_password_reset_workflow(client, test_setup):
     reuse = client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "AnotherNewPassword123!"})
     assert reuse.status_code == 400
 
+
+def test_personal_workspace_registration(client):
+    payload = {
+        "full_name": "Elena Rostova",
+        "email": "elena@personal.example",
+        "password": "SecurePassword123!",
+        "terms_accepted": True,
+        "terms_version": "1.0",
+    }
+    res = client.post("/api/v1/auth/register", json=payload)
+    assert res.status_code == 201
+    data = res.get_json()
+    assert data["user"]["full_name"] == "Elena Rostova"
+    assert data["user"]["terms_version"] == "1.0"
+    assert data["organization"]["name"] == "Elena's Workspace"
+    assert data["organization"]["workspace_type"] == "personal"
+
+
+def test_profile_update_and_theme_preference(client, test_setup):
+    client.post(
+        "/api/v1/auth/login",
+        json={"email": test_setup["admin_email"], "password": test_setup["password"]},
+    )
+    # Update profile
+    patch_res = client.patch(
+        "/api/v1/auth/profile",
+        json={"full_name": "Alice Administrator Updated", "theme_preference": "dark"},
+    )
+    assert patch_res.status_code == 200
+    user_data = patch_res.get_json()["user"]
+    assert user_data["full_name"] == "Alice Administrator Updated"
+    assert user_data["theme_preference"] == "dark"
+
+    # Reject invalid theme
+    invalid_theme_res = client.patch(
+        "/api/v1/auth/profile",
+        json={"theme_preference": "neon_rainbow"},
+    )
+    assert invalid_theme_res.status_code == 400
+

@@ -12,6 +12,22 @@ import { PermissionsPage } from '../features/sharing/PermissionsPage';
 import { AuditCenterPage } from '../features/audit/AuditCenterPage';
 import { MembersPage } from '../features/members/MembersPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { TermsPage } from '../features/legal/TermsPage';
+import { PrivacyPage } from '../features/legal/PrivacyPage';
+import { CookiesPage } from '../features/legal/CookiesPage';
+import { SecurityPage } from '../features/legal/SecurityPage';
+import { ContactPage } from '../features/legal/ContactPage';
+import { CookieConsent } from '../components/layout/CookieConsent';
+import { AppLoadingMark } from '../components/brand/TrustVaultLogo';
+
+function RootLayout() {
+  return (
+    <>
+      <Outlet />
+      <CookieConsent />
+    </>
+  );
+}
 
 function ProtectedRoute() {
   const { user, isLoading } = useAuth();
@@ -19,10 +35,7 @@ function ProtectedRoute() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background-warm flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-7 h-7 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs text-text-muted">Verifying session...</span>
-        </div>
+        <AppLoadingMark message="Verifying session and security context..." />
       </div>
     );
   }
@@ -50,36 +63,61 @@ function PublicRoute() {
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  {
-    element: <PublicRoute />,
-    children: [
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
-    ],
-  },
-  {
-    path: '/app',
-    element: <ProtectedRoute />,
+    element: <RootLayout />,
     children: [
       {
-        element: <AppShell />,
+        path: '/',
+        element: <LandingPage />,
+      },
+      {
+        path: '/terms',
+        element: <TermsPage />,
+      },
+      {
+        path: '/privacy',
+        element: <PrivacyPage />,
+      },
+      {
+        path: '/cookies',
+        element: <CookiesPage />,
+      },
+      {
+        path: '/security',
+        element: <SecurityPage />,
+      },
+      {
+        path: '/contact',
+        element: <ContactPage />,
+      },
+      {
+        element: <PublicRoute />,
         children: [
-          { index: true, element: <OverviewPage /> },
-          { path: 'documents', element: <DocumentsPage /> },
-          { path: 'shared', element: <SharedWithMePage /> },
-          { path: 'permissions', element: <PermissionsPage /> },
-          { path: 'audit', element: <AuditCenterPage /> },
-          { path: 'members', element: <MembersPage /> },
-          { path: 'settings', element: <SettingsPage /> },
+          { path: '/login', element: <LoginPage /> },
+          { path: '/register', element: <RegisterPage /> },
         ],
       },
+      {
+        path: '/app',
+        element: <ProtectedRoute />,
+        children: [
+          {
+            element: <AppShell />,
+            children: [
+              { index: true, element: <OverviewPage /> },
+              { path: 'documents', element: <DocumentsPage /> },
+              { path: 'shared', element: <SharedWithMePage /> },
+              { path: 'permissions', element: <PermissionsPage /> },
+              { path: 'audit', element: <AuditCenterPage /> },
+              { path: 'members', element: <MembersPage /> },
+              { path: 'settings', element: <SettingsPage /> },
+            ],
+          },
+        ],
+      },
+      {
+        path: '*',
+        element: <Navigate to="/" replace />,
+      },
     ],
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
   },
 ]);

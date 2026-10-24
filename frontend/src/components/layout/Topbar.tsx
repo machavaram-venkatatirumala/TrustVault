@@ -1,7 +1,8 @@
 import React from 'react';
-import { Menu, ShieldCheck, User } from 'lucide-react';
+import { Menu, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Badge } from '../ui/badge';
+import { TrustVaultLogo } from '../brand/TrustVaultLogo';
 
 interface TopbarProps {
   onOpenMobileNav: () => void;
@@ -14,7 +15,7 @@ export function Topbar({ onOpenMobileNav, title }: TopbarProps) {
   const userInitial = user?.full_name?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <header className="h-16 border-b border-border bg-white flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+    <header className="h-16 border-b border-border bg-white dark:bg-elevated flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileNav}
@@ -23,6 +24,9 @@ export function Topbar({ onOpenMobileNav, title }: TopbarProps) {
         >
           <Menu className="w-5 h-5" />
         </button>
+        <div className="lg:hidden">
+          <TrustVaultLogo variant="symbol" size="sm" />
+        </div>
         {title && (
           <h1 className="text-base sm:text-lg font-semibold text-text-primary tracking-tight">
             {title}

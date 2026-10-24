@@ -36,10 +36,10 @@ describe('LoginPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /sign in to your organization/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/work email/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /sign in to your (vault|organization)/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/(email address|work email)/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('••••••••••••')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^sign in$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /forgot password/i })).toBeInTheDocument();
   });
 
@@ -50,7 +50,7 @@ describe('LoginPage', () => {
       </MemoryRouter>
     );
 
-    const form = screen.getByRole('button', { name: /^sign in$/i }).closest('form');
+    const form = screen.getByRole('button', { name: /sign in/i }).closest('form');
     if (form) {
       fireEvent.submit(form);
     }
@@ -68,14 +68,14 @@ describe('LoginPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/work email/i), {
+    fireEvent.change(screen.getByLabelText(/(email address|work email)/i), {
       target: { value: 'jane@acme.example' },
     });
     fireEvent.change(screen.getByPlaceholderText('••••••••••••'), {
       target: { value: 'Password123!' },
     });
 
-    const form = screen.getByRole('button', { name: /^sign in$/i }).closest('form');
+    const form = screen.getByRole('button', { name: /sign in/i }).closest('form');
     if (form) {
       fireEvent.submit(form);
     }
@@ -97,14 +97,14 @@ describe('LoginPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/work email/i), {
+    fireEvent.change(screen.getByLabelText(/(email address|work email)/i), {
       target: { value: 'unknown@acme.example' },
     });
     fireEvent.change(screen.getByPlaceholderText('••••••••••••'), {
       target: { value: 'WrongPassword!' },
     });
 
-    const form = screen.getByRole('button', { name: /^sign in$/i }).closest('form');
+    const form = screen.getByRole('button', { name: /sign in/i }).closest('form');
     if (form) {
       fireEvent.submit(form);
     }

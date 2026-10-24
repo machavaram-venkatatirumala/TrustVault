@@ -20,13 +20,21 @@ def get_organization():
 @admin_required
 def update_organization():
     data = request.get_json() or {}
-    name = data.get("name", "").strip()
+    name = data.get("name", "").strip() if "name" in data else None
+    workspace_type = data.get("workspace_type", "").strip() if "workspace_type" in data else None
 
-    if not name:
-        raise APIError("Organization name cannot be empty.", status_code=400)
+    if name is not None and not name:
+        raise APIError("Workspace name cannot be empty.", status_code=400)
 
-    old_name = g.current_org.name
-    g.current_org.name = name
+    old_metadata = {"old_name": g.current_org.name, "old_type": g.current_org.workspace_type}
+
+    if name:
+        g.current_org.name = name
+    if workspace_type:
+        if workspace_type not in ("personal", "shared"):
+            raise APIError("Workspace type must be 'personal' or 'shared'.", status_code=400)
+        g.current_org.workspace_type = workspace_type
+
     db.session.commit()
 
     AuditService.record(
@@ -36,7 +44,11 @@ def update_organization():
         resource_type="organization",
         resource_id=g.current_org.id,
         outcome="success",
-        metadata={"old_name": old_name, "new_name": name},
+        metadata={
+            **old_metadata,
+            "new_name": g.current_org.name,
+            "new_type": g.current_org.workspace_type,
+        },
     )
 
     return jsonify({"organization": g.current_org.to_dict()}), 200

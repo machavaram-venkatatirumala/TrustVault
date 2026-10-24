@@ -5,6 +5,9 @@ export interface User {
   full_name: string;
   email: string;
   is_active: boolean;
+  theme_preference?: 'light' | 'dark' | 'system';
+  terms_version?: string | null;
+  terms_accepted_at?: string | null;
   created_at: string;
   last_login_at?: string | null;
 }
@@ -13,6 +16,7 @@ export interface Organization {
   id: string;
   name: string;
   slug: string;
+  workspace_type?: 'personal' | 'shared';
   created_at: string;
   updated_at: string;
 }

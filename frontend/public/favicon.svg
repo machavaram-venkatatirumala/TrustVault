@@ -1,5 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#3155D9"/>
-  <path d="M16 6L23 9.5V16C23 20.5 20 24.2 16 25.5C12 24.2 9 20.5 9 16V9.5L16 6Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M13.5 16L15.5 18L19 14" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tv-vault-grad" x1="6" y1="4" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3155D9" />
+      <stop offset="100%" stop-color="#223FA8" />
+    </linearGradient>
+    <linearGradient id="tv-facet-grad" x1="24" y1="4" x2="34" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#14B8A6" />
+      <stop offset="100%" stop-color="#0F766E" />
+    </linearGradient>
+  </defs>
+  <path d="M20 3L34 10V22C34 29.5 28 35.5 20 38C12 35.5 6 29.5 6 22V10L20 3Z" fill="url(#tv-vault-grad)" />
+  <path d="M24 4L34 14H26C24.8954 14 24 13.1046 24 12V4Z" fill="url(#tv-facet-grad)" opacity="0.9" />
+  <path d="M13 14H27V17H21.5V28H18.5V17H13V14Z" fill="#FFFFFF" />
+  <path d="M21 23.5L24.5 27L30 19" stroke="#E8BE70" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
 </svg>

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS organizations (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
     slug VARCHAR(120) UNIQUE NOT NULL,
+    workspace_type VARCHAR(20) NOT NULL DEFAULT 'personal', -- 'personal', 'shared'
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -17,6 +18,11 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    theme_preference VARCHAR(20) NOT NULL DEFAULT 'system',
+    terms_version VARCHAR(20) NULL,
+    terms_accepted_at TIMESTAMP NULL,
+    reset_token_hash VARCHAR(128) NULL,
+    reset_token_expires_at TIMESTAMP NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at TIMESTAMP NULL

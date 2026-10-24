@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '../hooks/useAuth';
 import { ToastProvider } from '../hooks/useToast';
+import { ThemeProvider } from '../lib/theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,10 +16,12 @@ const queryClient = new QueryClient({
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ToastProvider>{children}</ToastProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

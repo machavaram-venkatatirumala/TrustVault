@@ -11,6 +11,7 @@ import {
   UserPlus,
   ShieldCheck,
   ArrowUpRight,
+  FolderOpen,
   Sparkles,
 } from 'lucide-react';
 import { MetricCard } from '../../components/dashboard/MetricCard';
@@ -80,20 +81,41 @@ export function OverviewPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button size="sm" onClick={() => setUploadOpen(true)} className="gap-1.5 text-xs">
+          <Button size="sm" onClick={() => setUploadOpen(true)} className="gap-1.5 text-xs shadow-subtle">
             <Upload className="w-3.5 h-3.5" />
-            Upload Document
+            <span>Upload Document</span>
           </Button>
           {isAdmin && (
             <Link to="/app/members">
               <Button variant="outline" size="sm" className="gap-1.5 text-xs">
                 <UserPlus className="w-3.5 h-3.5" />
-                Invite Member
+                <span>Invite Member</span>
               </Button>
             </Link>
           )}
         </div>
       </div>
+
+      {/* When genuinely empty library, show intentional empty state card */}
+      {metrics.total_documents === 0 && (
+        <div className="p-6 rounded-large bg-white dark:bg-elevated border border-primary/20 shadow-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-medium bg-primary-soft text-primary flex items-center justify-center shrink-0">
+              <FolderOpen className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-sm text-text-primary">No documents yet</h3>
+              <p className="text-xs text-text-secondary max-w-xl leading-relaxed">
+                Your secure document library starts here. Upload your first document to calculate its integrity fingerprint and manage access.
+              </p>
+            </div>
+          </div>
+          <Button size="sm" onClick={() => setUploadOpen(true)} className="gap-1.5 text-xs shrink-0 shadow-subtle">
+            <Upload className="w-3.5 h-3.5" />
+            <span>Upload Your First File</span>
+          </Button>
+        </div>
+      )}
 
       {/* 5 Real DB-Calculated Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -109,7 +131,7 @@ export function OverviewPage() {
         <MetricCard
           label="Active Members"
           value={metrics.active_members}
-          description="Organization teammates"
+          description="Workspace collaborators"
           icon={Users}
           iconColor="text-accent-ink"
           iconBg="bg-surface-blue"
@@ -176,7 +198,7 @@ export function OverviewPage() {
 
               <div className="flex items-center justify-between text-xs pt-1 border-t border-border">
                 <span className="text-text-muted">Storage Engine</span>
-                <span className="font-semibold text-text-primary capitalize">Private File System</span>
+                <span className="font-semibold text-text-primary capitalize">Private File Storage</span>
               </div>
             </div>
 

@@ -191,7 +191,7 @@ export function DocumentsPage() {
       </div>
 
       {/* Document Table Card */}
-      <div className="rounded-medium border border-border bg-white shadow-card overflow-hidden">
+      <div className="rounded-medium border border-border bg-white dark:bg-elevated shadow-card overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-xs text-text-muted">Loading documents...</div>
         ) : documents.length === 0 ? (
@@ -201,9 +201,9 @@ export function DocumentsPage() {
             description={
               search || fileType
                 ? 'Try adjusting your search criteria or clearing filters.'
-                : 'Upload your first document to begin managing access and verifying integrity.'
+                : 'Your secure document library starts here. Upload your first document to calculate its integrity fingerprint and manage access.'
             }
-            actionLabel="Upload document"
+            actionLabel="Upload Document"
             onAction={() => setUploadOpen(true)}
           />
         ) : (

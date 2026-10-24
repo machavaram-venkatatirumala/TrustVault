@@ -5,7 +5,6 @@ import {
   Check,
   ShieldCheck,
   Download,
-  Flame,
   Clock,
   UserCheck,
   HardDrive,
@@ -31,7 +30,6 @@ export function DocumentDetailsModal({ document: doc, open, onClose, onRefresh }
   const { success, error, warning } = useToast();
   const [copied, setCopied] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [tampering, setTampering] = useState(false);
   const [verificationResult, setVerificationResult] = useState<any>(null);
 
   if (!doc) return null;
@@ -57,23 +55,6 @@ export function DocumentDetailsModal({ document: doc, open, onClose, onRefresh }
       error('Verification Failed', err.message);
     } finally {
       setVerifying(false);
-    }
-  };
-
-  const handleSimulateTamper = async () => {
-    setTampering(true);
-    try {
-      await api.documents.simulateTamper(doc.id);
-      warning(
-        'Byte Altered in Storage',
-        'Storage file was modified. Click "Verify Cryptographic Integrity" to demonstrate detection.'
-      );
-      setVerificationResult(null);
-      onRefresh();
-    } catch (err: any) {
-      error('Tamper Simulation Failed', err.message);
-    } finally {
-      setTampering(false);
     }
   };
 
@@ -167,28 +148,16 @@ export function DocumentDetailsModal({ document: doc, open, onClose, onRefresh }
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+            <div className="pt-1">
               <Button
                 variant="primary"
                 size="sm"
                 onClick={handleVerify}
                 loading={verifying}
-                className="flex-1 text-xs"
+                className="w-full text-xs gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 Verify Cryptographic Integrity
-              </Button>
-
-              <Button
-                variant="danger-outline"
-                size="sm"
-                onClick={handleSimulateTamper}
-                loading={tampering}
-                className="text-xs"
-                title="Interview demo tool: alter 1 byte in storage to show tamper detection"
-              >
-                <Flame className="w-3.5 h-3.5" />
-                Simulate Storage Tamper
               </Button>
             </div>
           </div>

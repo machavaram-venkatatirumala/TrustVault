@@ -13,6 +13,9 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    theme_preference = db.Column(db.String(20), default="system", nullable=True)
+    terms_version = db.Column(db.String(20), nullable=True)
+    terms_accepted_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
@@ -48,6 +51,9 @@ class User(db.Model):
             "full_name": self.full_name,
             "email": self.email,
             "is_active": self.is_active,
+            "theme_preference": self.theme_preference or "system",
+            "terms_version": self.terms_version,
+            "terms_accepted_at": self.terms_accepted_at.isoformat() if self.terms_accepted_at else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
         }

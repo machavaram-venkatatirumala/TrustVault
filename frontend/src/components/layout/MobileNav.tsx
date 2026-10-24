@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   Files,
@@ -10,10 +10,11 @@ import {
   Settings,
   LogOut,
   Building2,
-  Shield,
+  FolderLock,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { TrustVaultLogo } from '../brand/TrustVaultLogo';
 import { cn } from '../../lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -47,6 +48,8 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
     }
   };
 
+  const isPersonal = organization?.workspace_type === 'personal';
+
   return (
     <AnimatePresence>
       {open && (
@@ -57,7 +60,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs"
           />
 
           {/* Drawer content */}
@@ -66,24 +69,12 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-72 max-w-[85vw] h-full bg-white shadow-modal flex flex-col justify-between"
+            className="relative w-72 max-w-[85vw] h-full bg-white dark:bg-elevated shadow-modal flex flex-col justify-between"
           >
             <div>
               {/* Header */}
-              <div className="h-16 flex items-center justify-between px-5 border-b border-border">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-small bg-primary flex items-center justify-center text-white">
-                    <Shield className="w-4 h-4 stroke-[2.2]" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-sm tracking-tight text-text-primary block leading-none">
-                      TrustVault
-                    </span>
-                    <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block mt-0.5">
-                      Enterprise Security
-                    </span>
-                  </div>
-                </div>
+              <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+                <TrustVaultLogo size="sm" />
                 <button
                   onClick={onClose}
                   className="p-1 rounded-small text-text-muted hover:text-text-primary"
@@ -93,15 +84,19 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                 </button>
               </div>
 
-              {/* Organization badge */}
+              {/* Workspace badge */}
               <div className="p-3">
                 <div className="flex items-center gap-2.5 p-2.5 rounded-small bg-surface-subtle border border-border">
-                  <Building2 className="w-4 h-4 text-accent-ink" />
+                  <div className="w-7 h-7 rounded-small bg-white dark:bg-elevated border border-border flex items-center justify-center text-primary shrink-0">
+                    {isPersonal ? <FolderLock className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
+                  </div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-text-primary truncate">
                       {organization?.name || 'Workspace'}
                     </p>
-                    <p className="text-[10px] text-text-secondary capitalize">{role}</p>
+                    <p className="text-[10px] text-text-muted capitalize">
+                      {isPersonal ? 'Personal Vault' : 'Shared Workspace'} • {role}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -136,7 +131,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             </div>
 
             {/* User footer */}
-            <div className="p-4 border-t border-border bg-white flex items-center justify-between">
+            <div className="p-4 border-t border-border bg-white dark:bg-elevated flex items-center justify-between">
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-text-primary truncate">
                   {user?.full_name}

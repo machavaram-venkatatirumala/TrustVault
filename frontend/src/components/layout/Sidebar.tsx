@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   Files,
@@ -9,11 +9,12 @@ import {
   Users,
   Settings,
   LogOut,
+  FolderLock,
   Building2,
-  Shield,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { Badge } from '../ui/badge';
+import { TrustVaultLogo } from '../brand/TrustVaultLogo';
 import { cn } from '../../lib/utils';
 
 interface NavItem {
@@ -46,43 +47,37 @@ export function Sidebar({ className }: { className?: string }) {
     }
   };
 
+  const isPersonal = organization?.workspace_type === 'personal';
+
   return (
     <aside
       className={cn(
-        'w-64 shrink-0 border-r border-border bg-white flex flex-col justify-between h-screen sticky top-0 select-none z-30',
+        'w-64 shrink-0 border-r border-border bg-white dark:bg-elevated flex flex-col justify-between h-screen sticky top-0 select-none z-30',
         className
       )}
     >
       {/* Top Brand & Workspace Switcher */}
       <div>
-        <div className="h-16 flex items-center px-5 border-b border-border gap-2.5">
-          <div className="w-8 h-8 rounded-small bg-primary flex items-center justify-center text-white shadow-subtle">
-            <Shield className="w-4 h-4 stroke-[2.2]" />
-          </div>
-          <div>
-            <span className="font-bold text-sm tracking-tight text-text-primary block leading-none">
-              TrustVault
-            </span>
-            <span className="text-[10px] uppercase font-semibold tracking-wider text-text-muted block mt-0.5">
-              Enterprise Security
-            </span>
-          </div>
+        <div className="h-16 flex items-center px-4 border-b border-border">
+          <Link to="/app" className="inline-flex items-center">
+            <TrustVaultLogo size="sm" />
+          </Link>
         </div>
 
-        {/* Organization Scope Card */}
+        {/* Workspace Scope Card */}
         <div className="p-3">
-          <div className="flex items-center gap-2.5 p-2.5 rounded-small bg-surface-subtle/60 border border-border/60">
-            <div className="w-7 h-7 rounded-small bg-white border border-border flex items-center justify-center text-accent-ink shrink-0">
-              <Building2 className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2.5 p-2.5 rounded-small bg-surface-subtle border border-border/80">
+            <div className="w-7 h-7 rounded-small bg-white dark:bg-elevated border border-border flex items-center justify-center text-primary shrink-0 shadow-subtle">
+              {isPersonal ? <FolderLock className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-text-primary truncate leading-tight">
-                {organization?.name || 'Workspace'}
+                {organization?.name || 'My Workspace'}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-success"></span>
-                <span className="text-[11px] text-text-secondary capitalize">
-                  {role === 'admin' ? 'Organization Admin' : 'Member'}
+                <span className="text-[10px] text-text-muted capitalize">
+                  {isPersonal ? 'Personal Vault' : 'Shared Workspace'} • {role}
                 </span>
               </div>
             </div>
@@ -112,7 +107,7 @@ export function Sidebar({ className }: { className?: string }) {
                 <Icon className="w-4 h-4 stroke-[1.8]" />
                 <span>{item.name}</span>
                 {item.adminOnly && (
-                  <span className="ml-auto text-[9px] uppercase tracking-wider font-semibold text-primary/70 bg-primary/10 px-1.5 py-0.2 rounded">
+                  <span className="ml-auto text-[9px] uppercase tracking-wider font-semibold text-primary/70 bg-primary/10 px-1.5 py-0.5 rounded">
                     Admin
                   </span>
                 )}
@@ -122,30 +117,41 @@ export function Sidebar({ className }: { className?: string }) {
         </nav>
       </div>
 
-      {/* User Info & Sign Out Footer */}
-      <div className="p-3 border-t border-border bg-white">
-        <div className="flex items-center justify-between p-2 rounded-small hover:bg-surface-subtle/50 transition-colors">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-accent-periwinkle/30 border border-accent-periwinkle text-accent-ink font-semibold text-xs flex items-center justify-center shrink-0">
-              {user?.full_name?.charAt(0) || 'U'}
+      {/* Bottom Area: Documentation Links & User Info */}
+      <div className="border-t border-border bg-white dark:bg-elevated">
+        <div className="px-4 py-2 border-b border-border/60 flex items-center justify-between text-[11px] text-text-muted">
+          <Link to="/security" target="_blank" className="hover:text-text-primary transition-colors flex items-center gap-1">
+            <span>Security</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </Link>
+          <Link to="/privacy" target="_blank" className="hover:text-text-primary transition-colors">Privacy</Link>
+          <Link to="/terms" target="_blank" className="hover:text-text-primary transition-colors">Terms</Link>
+        </div>
+
+        <div className="p-3">
+          <div className="flex items-center justify-between p-2 rounded-small hover:bg-surface-subtle transition-colors">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-full bg-primary-soft text-primary font-bold text-xs flex items-center justify-center shrink-0">
+                {user?.full_name?.charAt(0) || 'U'}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-text-primary truncate leading-tight">
+                  {user?.full_name || 'Authenticated User'}
+                </p>
+                <p className="text-[11px] text-text-muted truncate leading-tight mt-0.5">
+                  {user?.email || ''}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-text-primary truncate leading-tight">
-                {user?.full_name || 'Authenticated User'}
-              </p>
-              <p className="text-[11px] text-text-muted truncate leading-tight mt-0.5">
-                {user?.email || ''}
-              </p>
-            </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="p-1.5 rounded-small text-text-muted hover:text-danger hover:bg-danger-bg transition-colors shrink-0"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            title="Sign out"
-            className="p-1.5 rounded-small text-text-muted hover:text-danger hover:bg-danger-bg transition-colors shrink-0"
-            aria-label="Sign out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
         </div>
       </div>
     </aside>

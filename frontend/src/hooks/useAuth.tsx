@@ -10,8 +10,17 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   login: (credentials: { email: string; password: string }) => Promise<any>;
-  register: (data: { full_name: string; email: string; password: string; org_name: string }) => Promise<any>;
+  register: (data: {
+    full_name: string;
+    email: string;
+    password: string;
+    org_name?: string;
+    terms_accepted?: boolean;
+    terms_version?: string;
+  }) => Promise<any>;
   logout: () => Promise<any>;
+  updateProfile: (data: { full_name?: string; theme_preference?: 'light' | 'dark' | 'system' }) => Promise<any>;
+  deleteAccount: () => Promise<any>;
   refetch: () => void;
 }
 
@@ -60,6 +69,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const updateProfileMutation = useMutation({
+    mutationFn: api.auth.updateProfile,
+    onSuccess: (res) => {
+      queryClient.setQueryData(['auth', 'me'], (prev: any) =>
+        prev ? { ...prev, user: res.user } : prev
+      );
+      queryClient.invalidateQueries();
+    },
+  });
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: api.auth.deleteAccount,
+    onSuccess: () => {
+      queryClient.setQueryData(['auth', 'me'], null);
+      queryClient.clear();
+    },
+  });
+
   const user = data?.user || null;
   const organization = data?.organization || null;
   const role = data?.role || null;
@@ -76,6 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login: loginMutation.mutateAsync,
         register: registerMutation.mutateAsync,
         logout: logoutMutation.mutateAsync,
+        updateProfile: updateProfileMutation.mutateAsync,
+        deleteAccount: deleteAccountMutation.mutateAsync,
         refetch,
       }}
     >

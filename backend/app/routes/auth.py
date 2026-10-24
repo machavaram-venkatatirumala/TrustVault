@@ -15,12 +15,16 @@ def register():
     email = data.get("email")
     password = data.get("password")
     org_name = data.get("org_name")
+    terms_accepted = bool(data.get("terms_accepted", False))
+    terms_version = data.get("terms_version", "1.0")
 
     result = AuthService.register(
         full_name=full_name,
         email=email,
         password=password,
         org_name=org_name,
+        terms_accepted=terms_accepted,
+        terms_version=terms_version,
     )
     return jsonify(result), 201
 
@@ -52,6 +56,31 @@ def get_me():
         "organization": g.current_org.to_dict(),
         "role": g.current_membership.role,
     }), 200
+
+
+@auth_bp.route("/auth/profile", methods=["PATCH"])
+@login_required
+def update_profile():
+    data = request.get_json() or {}
+    full_name = data.get("full_name")
+    theme_preference = data.get("theme_preference")
+
+    result = AuthService.update_profile(
+        user=g.current_user,
+        full_name=full_name,
+        theme_preference=theme_preference,
+    )
+    return jsonify(result), 200
+
+
+@auth_bp.route("/auth/account", methods=["DELETE"])
+@login_required
+def delete_account():
+    result = AuthService.delete_account(
+        user=g.current_user,
+        current_org=g.current_org,
+    )
+    return jsonify(result), 200
 
 
 @auth_bp.route("/auth/change-password", methods=["POST"])
@@ -90,4 +119,3 @@ def reset_password():
     new_password = data.get("new_password")
     result = AuthService.reset_password(token=token, new_password=new_password)
     return jsonify(result), 200
-

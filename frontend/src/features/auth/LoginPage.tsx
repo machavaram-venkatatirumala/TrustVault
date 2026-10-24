@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, ArrowRight, KeyRound } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../components/ui/dialog';
+import { TrustVaultLogo } from '../../components/brand/TrustVaultLogo';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import { api } from '../../lib/api';
@@ -24,7 +25,7 @@ export function LoginPage() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMessage, setForgotMessage] = useState('');
 
-  const { login, refetch } = useAuth();
+  const { login } = useAuth();
   const { success, error } = useToast();
   const navigate = useNavigate();
 
@@ -88,24 +89,21 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background-warm flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background-warm flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link to="/" className="inline-flex items-center gap-2 mb-4">
-          <div className="w-9 h-9 rounded-small bg-primary flex items-center justify-center text-white shadow-subtle">
-            <Shield className="w-5 h-5 stroke-[2.2]" />
-          </div>
-          <span className="font-bold text-xl tracking-tight text-text-primary">TrustVault</span>
+        <Link to="/" className="inline-block mb-3">
+          <TrustVaultLogo size="lg" animated={true} />
         </Link>
         <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary">
-          Sign in to your organization
+          Sign in to your vault
         </h2>
-        <p className="mt-1 text-xs text-text-secondary">
-          Enter your credentials to access the secure document vault.
+        <p className="mt-1 text-xs text-text-secondary max-w-sm mx-auto">
+          Enter your registered credentials to access your documents and verifiable audit trail.
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-card rounded-large border border-border sm:px-8 space-y-6">
+        <div className="bg-white dark:bg-elevated py-8 px-6 shadow-card rounded-large border border-border sm:px-8 space-y-5">
           {errorMessage && (
             <div className="p-3 rounded-small bg-danger-bg border border-danger/30 text-danger text-xs font-medium">
               {errorMessage}
@@ -114,11 +112,12 @@ export function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Work Email"
+              label="Email Address"
               type="email"
               required
+              autoFocus
               autoComplete="email"
-              placeholder="name@company.example"
+              placeholder="jane@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -138,7 +137,7 @@ export function LoginPage() {
                   className="p-1 hover:text-text-primary transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 text-text-muted" /> : <Eye className="w-4 h-4 text-text-muted" />}
                 </button>
               }
             />
@@ -158,18 +157,26 @@ export function LoginPage() {
               </button>
             </div>
 
-            <Button type="submit" size="md" loading={loading} className="w-full text-xs font-semibold">
-              Sign In
+            <Button type="submit" size="md" loading={loading} className="w-full text-xs font-semibold gap-1.5">
+              <span>Sign In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Button>
           </form>
 
-          <div className="text-center pt-1 border-t border-border">
-            <p className="text-xs text-text-secondary mt-2">
-              Don't have an organization yet?{' '}
+          <div className="text-center pt-2 border-t border-border/60 space-y-2">
+            <p className="text-xs text-text-secondary">
+              Don't have an account yet?{' '}
               <Link to="/register" className="text-primary hover:underline font-semibold">
-                Create a workspace
+                Create free account
               </Link>
             </p>
+            <div className="text-[11px] text-text-muted flex items-center justify-center gap-3">
+              <Link to="/terms" className="hover:underline">Terms</Link>
+              <span>•</span>
+              <Link to="/privacy" className="hover:underline">Privacy</Link>
+              <span>•</span>
+              <Link to="/security" className="hover:underline">Security</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -182,16 +189,16 @@ export function LoginPage() {
               <DialogHeader>
                 <DialogTitle>Reset Password</DialogTitle>
                 <DialogDescription>
-                  Enter your registered work email to receive password reset authorization.
+                  Enter your registered email address to receive password reset authorization.
                 </DialogDescription>
               </DialogHeader>
 
               <div className="py-4 space-y-3">
                 <Input
-                  label="Work Email"
+                  label="Email Address"
                   type="email"
                   required
-                  placeholder="name@company.example"
+                  placeholder="jane@example.com"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
                   autoFocus
@@ -208,7 +215,7 @@ export function LoginPage() {
                   Cancel
                 </Button>
                 <Button type="submit" loading={forgotLoading} disabled={!forgotEmail}>
-                  Send Reset Link
+                  Generate Reset Token
                 </Button>
               </DialogFooter>
             </form>
