@@ -109,6 +109,11 @@ export interface DashboardMetrics {
   recent_security_events: number;
   verified_count: number;
   mismatch_count: number;
+  total_storage_bytes?: number;
+  storage_quota_bytes?: number;
+  max_members?: number;
+  max_upload_size_bytes?: number;
+  plan_name?: string;
 }
 
 export interface ActivityPoint {

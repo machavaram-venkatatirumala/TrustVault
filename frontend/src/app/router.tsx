@@ -3,15 +3,25 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { AppShell } from '../components/layout/AppShell';
 import { LandingPage } from '../features/landing/LandingPage';
+import { FeaturesPage } from '../features/marketing/FeaturesPage';
+import { PricingPage } from '../features/marketing/PricingPage';
+import { AboutPage } from '../features/marketing/AboutPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from '../features/auth/ResetPasswordPage';
 import { OverviewPage } from '../features/dashboard/OverviewPage';
 import { DocumentsPage } from '../features/documents/DocumentsPage';
+import { DocumentDetailPage } from '../features/documents/DocumentDetailPage';
 import { SharedWithMePage } from '../features/sharing/SharedWithMePage';
 import { PermissionsPage } from '../features/sharing/PermissionsPage';
 import { AuditCenterPage } from '../features/audit/AuditCenterPage';
 import { MembersPage } from '../features/members/MembersPage';
+import { InvitationsPage } from '../features/members/InvitationsPage';
+import { SecurityControlsPage } from '../features/security/SecurityControlsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { BillingPage } from '../features/billing/BillingPage';
+import { ProfilePage } from '../features/profile/ProfilePage';
 import { TermsPage } from '../features/legal/TermsPage';
 import { PrivacyPage } from '../features/legal/PrivacyPage';
 import { CookiesPage } from '../features/legal/CookiesPage';
@@ -70,6 +80,18 @@ export const router = createBrowserRouter([
         element: <LandingPage />,
       },
       {
+        path: '/features',
+        element: <FeaturesPage />,
+      },
+      {
+        path: '/pricing',
+        element: <PricingPage />,
+      },
+      {
+        path: '/about',
+        element: <AboutPage />,
+      },
+      {
         path: '/terms',
         element: <TermsPage />,
       },
@@ -94,6 +116,8 @@ export const router = createBrowserRouter([
         children: [
           { path: '/login', element: <LoginPage /> },
           { path: '/register', element: <RegisterPage /> },
+          { path: '/forgot-password', element: <ForgotPasswordPage /> },
+          { path: '/reset-password', element: <ResetPasswordPage /> },
         ],
       },
       {
@@ -104,12 +128,20 @@ export const router = createBrowserRouter([
             element: <AppShell />,
             children: [
               { index: true, element: <OverviewPage /> },
+              { path: 'overview', element: <OverviewPage /> },
               { path: 'documents', element: <DocumentsPage /> },
+              { path: 'documents/:id', element: <DocumentDetailPage /> },
+              { path: 'shared-with-me', element: <SharedWithMePage /> },
               { path: 'shared', element: <SharedWithMePage /> },
+              { path: 'sharing', element: <PermissionsPage /> },
               { path: 'permissions', element: <PermissionsPage /> },
               { path: 'audit', element: <AuditCenterPage /> },
               { path: 'members', element: <MembersPage /> },
+              { path: 'invitations', element: <InvitationsPage /> },
+              { path: 'security', element: <SecurityControlsPage /> },
               { path: 'settings', element: <SettingsPage /> },
+              { path: 'billing', element: <BillingPage /> },
+              { path: 'profile', element: <ProfilePage /> },
             ],
           },
         ],

@@ -143,18 +143,13 @@ export function LoginPage() {
             />
 
             <div className="flex items-center justify-end -mt-1 mb-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setForgotOpen(true);
-                  setForgotEmail(email);
-                  setForgotStep('request');
-                  setForgotMessage('');
-                }}
+              <Link
+                to="/forgot-password"
+                role="button"
                 className="text-xs text-primary hover:underline font-medium"
               >
                 Forgot password?
-              </button>
+              </Link>
             </div>
 
             <Button type="submit" size="md" loading={loading} className="w-full text-xs font-semibold gap-1.5">

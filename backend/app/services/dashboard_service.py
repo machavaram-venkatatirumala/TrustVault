@@ -64,6 +64,16 @@ class DashboardService:
             last_verification_status="mismatch",
         ).count()
 
+        total_storage_bytes = (
+            db.session.query(func.coalesce(func.sum(Document.size_bytes), 0))
+            .filter(
+                Document.organization_id == organization_id,
+                Document.status == "active",
+            )
+            .scalar()
+            or 0
+        )
+
         return {
             "total_documents": total_documents,
             "active_members": active_members,
@@ -72,6 +82,11 @@ class DashboardService:
             "recent_security_events": recent_security_events,
             "verified_count": verified_count,
             "mismatch_count": mismatch_count,
+            "total_storage_bytes": int(total_storage_bytes),
+            "storage_quota_bytes": 1024 * 1024 * 1024,  # 1 GB Starter limit
+            "max_members": 5,
+            "max_upload_size_bytes": 25 * 1024 * 1024,  # 25 MB limit
+            "plan_name": "Starter Vault",
         }
 
     @staticmethod

@@ -55,29 +55,29 @@ export function LandingPage() {
             <a href="#product" className="hover:text-text-primary transition-colors">
               Product
             </a>
-            <a href="#integrity" className="hover:text-text-primary transition-colors">
-              Integrity
-            </a>
-            <a href="#security" className="hover:text-text-primary transition-colors">
-              Security
-            </a>
-            <a href="#how-it-works" className="hover:text-text-primary transition-colors">
-              How It Works
-            </a>
+            <Link to="/features" className="hover:text-text-primary transition-colors">
+              Features
+            </Link>
             <Link to="/security" className="hover:text-text-primary transition-colors">
-              Architecture
+              Security
+            </Link>
+            <Link to="/pricing" className="hover:text-text-primary transition-colors">
+              Pricing
+            </Link>
+            <Link to="/about" className="hover:text-text-primary transition-colors">
+              About
             </Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <Link to="/login">
               <Button variant="ghost" size="sm" className="text-xs">
-                Sign In
+                Sign in
               </Button>
             </Link>
             <Link to="/register">
               <Button size="sm" className="text-xs gap-1.5 shadow-subtle">
-                <span>Create Account</span>
+                <span>Start your workspace</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
@@ -97,40 +97,40 @@ export function LandingPage() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-text-primary tracking-tight leading-[1.12]">
-                Every document accounted for.{' '}
-                <span className="text-primary block sm:inline">Every permission intentional.</span>
+                Your documents. Your rules.{' '}
+                <span className="text-primary block sm:inline">A complete audit trail.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-text-secondary leading-relaxed max-w-xl">
-                Keep important files private, share them with confidence, and verify their integrity whenever you need to.
+                Share confidential files with confidence. Control access, verify document integrity, and track important actions from one secure workspace.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
                 <Link to="/register">
                   <Button size="lg" className="w-full sm:w-auto text-sm gap-2 shadow-subtle">
-                    <span>Create your free account</span>
+                    <span>Start your workspace</span>
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
-                <a href="#how-it-works">
+                <Link to="/security">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm">
-                    Explore how it works
+                    Explore security
                   </Button>
-                </a>
+                </Link>
               </div>
 
               <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-text-muted">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                  <span className="font-medium text-text-secondary">Organization-scoped access control</span>
+                </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
                   <span className="font-medium text-text-secondary">SHA-256 integrity verification</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                  <span className="font-medium text-text-secondary">Private document storage</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                  <span className="font-medium text-text-secondary">Transparent access history</span>
+                  <span className="font-medium text-text-secondary">Server-generated audit events</span>
                 </div>
               </div>
             </div>
@@ -503,10 +503,10 @@ export function LandingPage() {
                 Product & Security
               </span>
               <ul className="space-y-1.5 text-text-secondary">
-                <li><a href="#product" className="hover:text-text-primary transition-colors">Platform Features</a></li>
-                <li><a href="#integrity" className="hover:text-text-primary transition-colors">SHA-256 Integrity</a></li>
+                <li><Link to="/features" className="hover:text-text-primary transition-colors">Platform Features</Link></li>
                 <li><Link to="/security" className="hover:text-text-primary transition-colors">Security Architecture</Link></li>
-                <li><a href="#how-it-works" className="hover:text-text-primary transition-colors">How It Works</a></li>
+                <li><Link to="/pricing" className="hover:text-text-primary transition-colors">Pricing & Plans</Link></li>
+                <li><Link to="/about" className="hover:text-text-primary transition-colors">About & Principles</Link></li>
               </ul>
             </div>
 
