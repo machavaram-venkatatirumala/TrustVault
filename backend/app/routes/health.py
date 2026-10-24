@@ -6,6 +6,7 @@ health_bp = Blueprint("health", __name__)
 
 
 @health_bp.route("/health", methods=["GET"])
+@health_bp.route("/health/live", methods=["GET"])
 def health_check():
     """Liveness probe endpoint."""
     return jsonify({
@@ -16,6 +17,7 @@ def health_check():
 
 
 @health_bp.route("/ready", methods=["GET"])
+@health_bp.route("/health/ready", methods=["GET"])
 def readiness_check():
     """Readiness probe checking database and storage dependencies."""
     db_status = "unavailable"
