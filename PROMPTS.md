@@ -123,6 +123,12 @@ During the development process, several AI-generated implementations contained d
 - **Verification:** Inspected [`backend/app/routes/permissions.py`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/app/routes/permissions.py) and verified the registered route was `@permissions_bp.route("/permissions/<permission_id>", methods=["DELETE"])`.
 - **Correction:** Updated test to call `DELETE /api/v1/permissions/{perm_id}`. Re-ran test; passed with HTTP 200.
 
+### Defect 6: Badge and Button Variant Prop Mismatches in Route Expansion
+- **Issue:** New page components referenced generic Radix/shadcn variant names (`destructive`, `default`, `outline`) which conflicted with the custom multi-color design tokens in [`components/ui/badge.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/ui/badge.tsx) (`danger`, `neutral`, `champagne`) and [`components/ui/button.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/ui/button.tsx) (`primary`, `danger`, `outline`).
+- **Symptom:** `npm run build` failed with TypeScript error TS2322.
+- **Verification:** Inspected prop types in `frontend/src/components/ui/`.
+- **Correction:** Normalized all new pages to use the designated design token variants (`variant="danger"` for destructive actions, `variant="neutral"` for secondary badges, `variant="primary"` for primary actions). Build passed in 1.22s with 0 errors.
+
 ---
 
 ## 5. Actual Test Execution Log & Commands
