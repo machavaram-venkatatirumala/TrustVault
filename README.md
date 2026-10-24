@@ -4,8 +4,8 @@
 >
 > *Store, share, and verify important documents with clear access controls and a trustworthy record of every critical action.*
 
-[![Backend Tests](https://img.shields.io/badge/backend%20tests-48%20passed-207B61?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests)
-[![Frontend Tests](https://img.shields.io/badge/frontend%20tests-16%20passed-207B61?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tests)
+[![Backend Tests](https://img.shields.io/badge/backend%20tests-76%20passed-207B61?style=flat-square)](backend/tests)
+[![Frontend Tests](https://img.shields.io/badge/frontend%20tests-24%20passed-207B61?style=flat-square)](frontend/tests)
 [![Threat Model](https://img.shields.io/badge/STRIDE-20%20Threats%20Tested-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/THREATS.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tsconfig.json)
 [![Security](https://img.shields.io/badge/Auth-Argon2id%20%7C%20RBAC-34486B?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/security.md)
