@@ -12,6 +12,17 @@ from .routes import (
     audit_bp,
     members_bp,
     dashboard_bp,
+    notifications_bp,
+    search_bp,
+    security_alerts_bp,
+    developer_bp,
+    access_explorer_bp,
+    classification_bp,
+    approvals_bp,
+    policies_bp,
+    evidence_bp,
+    governance_bp,
+    enterprise_bp,
 )
 
 
@@ -51,6 +62,17 @@ def create_app(config_class=Config):
     app.register_blueprint(audit_bp, url_prefix=api_prefix)
     app.register_blueprint(members_bp, url_prefix=api_prefix)
     app.register_blueprint(dashboard_bp, url_prefix=api_prefix)
+    app.register_blueprint(notifications_bp, url_prefix=api_prefix)
+    app.register_blueprint(search_bp, url_prefix=api_prefix)
+    app.register_blueprint(security_alerts_bp, url_prefix=api_prefix)
+    app.register_blueprint(developer_bp, url_prefix=api_prefix)
+    app.register_blueprint(access_explorer_bp, url_prefix=api_prefix)
+    app.register_blueprint(classification_bp, url_prefix=api_prefix)
+    app.register_blueprint(approvals_bp, url_prefix=api_prefix)
+    app.register_blueprint(policies_bp, url_prefix=api_prefix)
+    app.register_blueprint(evidence_bp, url_prefix=api_prefix)
+    app.register_blueprint(governance_bp, url_prefix=api_prefix)
+    app.register_blueprint(enterprise_bp, url_prefix=api_prefix)
 
     # Auto-create tables on startup in development/testing mode
     with app.app_context():

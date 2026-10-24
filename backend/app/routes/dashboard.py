@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify, request, g
 from ..security.authorization import login_required
 from ..services.dashboard_service import DashboardService
 
@@ -15,5 +15,12 @@ def get_summary():
 @dashboard_bp.route("/dashboard/activity", methods=["GET"])
 @login_required
 def get_activity():
-    activity = DashboardService.get_activity_series(organization_id=g.current_org.id, days=7)
-    return jsonify({"activity": activity}), 200
+    days = 7
+    days_arg = request.args.get("days")
+    if days_arg:
+        try:
+            days = max(1, min(int(days_arg), 90))
+        except (ValueError, TypeError):
+            days = 7
+    activity = DashboardService.get_activity_series(organization_id=g.current_org.id, days=days)
+    return jsonify({"activity": activity, "days": days}), 200

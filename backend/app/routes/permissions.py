@@ -72,3 +72,16 @@ def shared_with_me():
         organization_id=g.current_org.id,
     )
     return jsonify({"documents": shared_docs}), 200
+
+
+@permissions_bp.route("/permissions/overview", methods=["GET"])
+@login_required
+def sharing_overview():
+    is_admin = g.current_membership.role == "admin"
+    overview = PermissionService.get_sharing_overview(
+        organization_id=g.current_org.id,
+        actor=g.current_user,
+        is_admin=is_admin,
+    )
+    return jsonify(overview), 200
+

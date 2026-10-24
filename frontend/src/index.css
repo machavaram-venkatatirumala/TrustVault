@@ -2,57 +2,61 @@
 
 :root {
   /* Foundation */
-  --background: #FFFFFF;
-  --background-warm: #FAF9F6;
-  --surface-porcelain: #FAF9F6;
-  --surface-ivory: #F5F2EC;
-  --surface-subtle: #F1F5F9;
-  --surface-blue: #F1F5FF;
+  --background: #F7F8FC;
+  --background-warm: #F7F8FC;
+  --surface-porcelain: #F7F8FC;
+  --surface-ivory: #F0F2F9;
+  --surface-subtle: #F0F2F9;
+  --surface-blue: #F0F4FF;
+  --card: #FFFFFF;
   --elevated: #FFFFFF;
 
-  --text-primary: #20283B;
-  --text-secondary: #64748B;
-  --text-muted: #8993A5;
+  --text-primary: #20263A;
+  --text-secondary: #747C90;
+  --text-muted: #9AA0B2;
 
-  --border: #E5E7EB;
-  --border-strong: #D5DCE7;
+  --border: #E8EAF1;
+  --border-strong: #D8DCE7;
 
-  /* Primary Blue — Navigation & Primary Actions */
+  /* Primary Cobalt — Navigation & Primary Actions */
   --primary: #3155D9;
-  --primary-hover: #2747BE;
-  --primary-soft: #E9EEFF;
-  --accent-blue: #6687F5;
-  --accent-ink: #34486B;
+  --primary-hover: #2646BE;
+  --primary-soft: #EEF2FF;
+  --accent-blue: #5C7FF5;
+  --accent-ink: #27375C;
 
-  /* Teal — Document Integrity & Verification */
-  --teal-deep: #0F766E;
-  --teal: #14B8A6;
-  --teal-pale: #E6F7F4;
+  /* Teal — Document Integrity & Verification (#0F9D91) */
+  --teal-deep: #0C7E75;
+  --teal: #0F9D91;
+  --teal-pale: #E6F7F5;
 
-  /* Emerald — Successful Operations & Secure States */
-  --emerald: #16856B;
-  --emerald-fresh: #22A06B;
-  --emerald-pale: #E7F7EE;
+  /* Emerald — Successful Operations & Secure States (#16865B) */
+  --emerald: #16865B;
+  --emerald-fresh: #1E9E6D;
+  --emerald-pale: #E8F8F1;
 
-  /* Violet — Collaboration & Workspace Features */
-  --violet: #7655C7;
-  --violet-soft: #A78BFA;
-  --violet-pale: #F0EBFF;
+  /* Lavender / Violet — Collaboration & Feature Categories (#8B72D9) */
+  --lavender: #8B72D9;
+  --lavender-soft: #A792E8;
+  --lavender-pale: #F3F0FC;
+  --violet: #8B72D9;
+  --violet-soft: #A792E8;
+  --violet-pale: #F3F0FC;
 
-  /* Amber & Champagne — Important Events & Premium Details */
-  --amber-deep: #A66A16;
-  --amber: #E6A23C;
-  --amber-pale: #FFF4D9;
+  /* Warm Amber — Important Events & Alerts (#D99022) */
+  --amber-deep: #B57416;
+  --amber: #D99022;
+  --amber-pale: #FDF4E7;
   --champagne: #C8A86B;
 
-  /* Coral — Attention & Alerts */
-  --coral: #E47764;
-  --coral-deep: #C6534B;
-  --coral-pale: #FFF0EC;
+  /* Coral — Attention, Denials & Deletion (#E56D5D) */
+  --coral: #E56D5D;
+  --coral-deep: #C74E3E;
+  --coral-pale: #FDF0EE;
 
   /* Error & Danger */
-  --danger: #C43D4B;
-  --danger-bg: #FDECEE;
+  --danger: #E56D5D;
+  --danger-bg: #FDF0EE;
 
   /* Standard aliases */
   --success: var(--emerald);
@@ -74,6 +78,7 @@
   --color-surface-ivory: var(--surface-ivory);
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-blue: var(--surface-blue);
+  --color-card: var(--card);
   --color-elevated: var(--elevated);
 
   --color-text-primary: var(--text-primary);
@@ -97,6 +102,9 @@
   --color-emerald-fresh: var(--emerald-fresh);
   --color-emerald-pale: var(--emerald-pale);
 
+  --color-lavender: var(--lavender);
+  --color-lavender-soft: var(--lavender-soft);
+  --color-lavender-pale: var(--lavender-pale);
   --color-violet: var(--violet);
   --color-violet-soft: var(--violet-soft);
   --color-violet-pale: var(--violet-pale);

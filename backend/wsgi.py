@@ -1,4 +1,5 @@
 import os
+os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 from app import create_app
 
 app = create_app()

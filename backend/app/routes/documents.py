@@ -140,6 +140,9 @@ def simulate_tamper(document_id):
         is_admin=is_admin,
     )
 
+    if not (is_admin or doc.owner_id == g.current_user.id):
+        raise APIError("Administrative or document owner privileges required to trigger byte alteration tests.", status_code=403)
+
     storage = get_storage()
     if not storage.exists(doc.storage_key):
         raise APIError("Storage object not found.", status_code=404)
@@ -154,3 +157,123 @@ def simulate_tamper(document_id):
         "message": "File byte altered in storage. Run integrity verification to observe cryptographic mismatch.",
         "document_id": doc.id,
     }), 200
+
+
+# --- Document Versioning Endpoints ---
+
+@documents_bp.route("/documents/<document_id>/versions", methods=["GET"])
+@login_required
+def list_versions(document_id):
+    from ..services.version_service import VersionService
+    is_admin = g.current_membership.role == "admin"
+    versions = VersionService.list_versions(
+        document_id=document_id,
+        actor=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify({"versions": versions}), 200
+
+
+@documents_bp.route("/documents/<document_id>/versions", methods=["POST"])
+@login_required
+def create_version(document_id):
+    from ..services.version_service import VersionService
+    if "file" not in request.files:
+        raise APIError("No file provided for new version.", status_code=400)
+
+    file_obj = request.files["file"]
+    change_summary = request.form.get("change_summary") or request.form.get("summary")
+
+    is_admin = g.current_membership.role == "admin"
+    version = VersionService.create_version(
+        document_id=document_id,
+        file_obj=file_obj,
+        actor=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+        change_summary=change_summary,
+    )
+    return jsonify(version), 201
+
+
+@documents_bp.route("/documents/<document_id>/versions/<version_id>/restore", methods=["POST"])
+@login_required
+def restore_version(document_id, version_id):
+    from ..services.version_service import VersionService
+    is_admin = g.current_membership.role == "admin"
+    result = VersionService.restore_version(
+        document_id=document_id,
+        version_id=version_id,
+        actor=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify(result), 200
+
+
+@documents_bp.route("/documents/<document_id>/versions/compare", methods=["GET"])
+@login_required
+def compare_versions(document_id):
+    from ..services.version_service import VersionService
+    v1_id = request.args.get("v1")
+    v2_id = request.args.get("v2")
+    if not v1_id or not v2_id:
+        raise APIError("Both v1 and v2 version IDs are required for comparison.", status_code=400)
+
+    is_admin = g.current_membership.role == "admin"
+    diff = VersionService.compare_versions(
+        document_id=document_id,
+        v1_id=v1_id,
+        v2_id=v2_id,
+        actor=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify(diff), 200
+
+
+# --- Trash & Document Recovery Endpoints ---
+
+@documents_bp.route("/documents/trash", methods=["GET"])
+@login_required
+def list_trash():
+    page = int(request.args.get("page", 1))
+    per_page = min(int(request.args.get("per_page", 20)), 100)
+    is_admin = g.current_membership.role == "admin"
+
+    result = DocumentService.list_trash(
+        organization_id=g.current_org.id,
+        user_id=g.current_user.id,
+        is_admin=is_admin,
+        page=page,
+        per_page=per_page,
+    )
+    return jsonify(result), 200
+
+
+@documents_bp.route("/documents/<document_id>/restore", methods=["POST"])
+@login_required
+def restore_document(document_id):
+    is_admin = g.current_membership.role == "admin"
+    result = DocumentService.restore_document(
+        document_id=document_id,
+        user=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify(result), 200
+
+
+@documents_bp.route("/documents/<document_id>/purge", methods=["DELETE"])
+@login_required
+def purge_document(document_id):
+    is_admin = g.current_membership.role == "admin"
+    result = DocumentService.purge_document(
+        document_id=document_id,
+        user=g.current_user,
+        organization=g.current_org,
+        is_admin=is_admin,
+    )
+    return jsonify(result), 200
+

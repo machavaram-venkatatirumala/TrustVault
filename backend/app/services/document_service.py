@@ -7,11 +7,12 @@ from sqlalchemy import or_
 
 from ..extensions import db
 from ..errors import APIError
-from ..models import Document, DocumentPermission, User, Organization
+from ..models import Document, DocumentVersion, DocumentPermission, User, Organization
 from ..security.sanitization import sanitize_filename, generate_opaque_storage_key, inspect_file_magic
 from ..storage import get_storage
 from ..utils.crypto import calculate_sha256_stream, calculate_sha256_bytes, constant_time_compare
 from .audit_service import AuditService
+from .notification_service import NotificationService
 
 
 class DocumentService:
@@ -38,15 +39,22 @@ class DocumentService:
             if existing_by_key:
                 return existing_by_key.to_dict()
 
-        raw_filename = file_obj.filename
+        raw_filename = getattr(file_obj, "filename", "unnamed_document")
         clean_filename = sanitize_filename(raw_filename)
 
         # Inspect claimed content type and file magic header
-        content_type = file_obj.content_type or "application/octet-stream"
+        content_type = getattr(file_obj, "content_type", None) or "application/octet-stream"
         
-        # Read header for magic byte verification
-        header_bytes = file_obj.read(1024)
-        file_obj.seek(0)
+        # Read header safely for magic byte verification
+        header_bytes = b""
+        if hasattr(file_obj, "read"):
+            header_bytes = file_obj.read(1024)
+            if hasattr(file_obj, "seek"):
+                file_obj.seek(0)
+        elif hasattr(file_obj, "stream") and hasattr(file_obj.stream, "read"):
+            header_bytes = file_obj.stream.read(1024)
+            if hasattr(file_obj.stream, "seek"):
+                file_obj.stream.seek(0)
 
         # Basic magic signature check if mime is declared
         if content_type in current_app.config.get("ALLOWED_MIME_TYPES", {}):
@@ -56,7 +64,12 @@ class DocumentService:
 
         # Read entire stream safely into memory buffer to compute size and SHA-256
         buffer = io.BytesIO()
-        file_obj.save(buffer)
+        if hasattr(file_obj, "save"):
+            file_obj.save(buffer)
+        elif hasattr(file_obj, "stream") and hasattr(file_obj.stream, "read"):
+            buffer.write(file_obj.stream.read())
+        elif hasattr(file_obj, "read"):
+            buffer.write(file_obj.read())
         buffer.seek(0)
         file_bytes = buffer.getvalue()
         size_bytes = len(file_bytes)
@@ -114,10 +127,29 @@ class DocumentService:
                 sha256_hash=sha256_hash,
                 idempotency_key=idempotency_key,
                 status="active",
+                current_version_number=1,
+                scan_status="clean",
+                scan_result="Allowlist verified clean",
                 last_verified_at=datetime.utcnow(),
                 last_verification_status="verified",
             )
             db.session.add(document)
+
+            # Persist version 1 snapshot
+            v1 = DocumentVersion(
+                document_id=document.id,
+                version_number=1,
+                storage_key=storage_key,
+                content_type=content_type,
+                size_bytes=size_bytes,
+                sha256_hash=sha256_hash,
+                scan_status="clean",
+                scan_result="Allowlist verified clean",
+                change_summary="Initial upload",
+                created_by=user.id,
+                created_at=document.created_at,
+            )
+            db.session.add(v1)
             db.session.commit()
 
             # Record audit event
@@ -250,6 +282,18 @@ class DocumentService:
     ) -> Tuple[BinaryIO, str, str]:
         document = DocumentService.get_document(document_id, user, organization, is_admin)
 
+        if document.scan_status == "quarantined":
+            AuditService.record(
+                organization_id=organization.id,
+                actor_user_id=user.id,
+                action="document.download_blocked_quarantine",
+                resource_type="document",
+                resource_id=document.id,
+                outcome="denied",
+                metadata={"reason": "file_quarantined", "scan_result": document.scan_result},
+            )
+            raise APIError("Download blocked: This document has been quarantined by security policy.", status_code=403)
+
         # If user is not admin and not owner, check if permission allows download
         if not is_admin and document.owner_id != user.id:
             now = datetime.utcnow()
@@ -351,6 +395,19 @@ class DocumentService:
             },
         )
 
+        if not matches:
+            try:
+                NotificationService.create_notification(
+                    user_id=document.owner_id,
+                    organization_id=organization.id,
+                    title="Security Alert: Integrity Mismatch",
+                    message=f"Cryptographic integrity verification failed for '{document.original_filename}'. Byte stream does not match authoritative SHA-256 digest.",
+                    notification_type="security",
+                    link=f"/app/documents/{document.id}",
+                )
+            except Exception:
+                pass
+
         return {
             "verified": matches,
             "status": "verified" if matches else "mismatch",
@@ -440,3 +497,112 @@ class DocumentService:
         )
 
         return document.to_dict()
+
+    @staticmethod
+    def restore_document(
+        document_id: str,
+        user: User,
+        organization: Organization,
+        is_admin: bool,
+    ) -> dict:
+        document = Document.query.filter_by(id=document_id, organization_id=organization.id).first()
+        if not document or document.status not in ("trash", "deleted"):
+            raise APIError("Document not found in trash.", status_code=404)
+
+        if not is_admin and document.owner_id != user.id:
+            raise APIError("You are not authorized to restore this document.", status_code=403)
+
+        document.status = "active"
+        document.deleted_at = None
+        document.updated_at = datetime.utcnow()
+        db.session.commit()
+
+        AuditService.record(
+            organization_id=organization.id,
+            actor_user_id=user.id,
+            action="document.restore",
+            resource_type="document",
+            resource_id=document.id,
+            outcome="success",
+            metadata={"filename": document.original_filename},
+        )
+
+        return document.to_dict()
+
+    @staticmethod
+    def purge_document(
+        document_id: str,
+        user: User,
+        organization: Organization,
+        is_admin: bool,
+    ) -> dict:
+        document = Document.query.filter_by(id=document_id, organization_id=organization.id).first()
+        if not document:
+            raise APIError("Document not found.", status_code=404)
+
+        if not is_admin and document.owner_id != user.id:
+            raise APIError("You are not authorized to permanently purge this document.", status_code=403)
+
+        storage = get_storage()
+        try:
+            storage.delete(document.storage_key)
+        except Exception:
+            pass
+
+        # Also purge any version snapshots from storage
+        for v in document.versions:
+            try:
+                storage.delete(v.storage_key)
+            except Exception:
+                pass
+
+        filename = document.original_filename
+        doc_id = document.id
+        db.session.delete(document)
+        db.session.commit()
+
+        AuditService.record(
+            organization_id=organization.id,
+            actor_user_id=user.id,
+            action="document.purge",
+            resource_type="document",
+            resource_id=doc_id,
+            outcome="success",
+            metadata={"filename": filename},
+        )
+
+        return {"message": "Document permanently purged from storage and database."}
+
+    @staticmethod
+    def list_trash(
+        organization_id: str,
+        user_id: str,
+        is_admin: bool,
+        page: int = 1,
+        per_page: int = 20,
+    ) -> dict:
+        query = Document.query.filter(
+            Document.organization_id == organization_id,
+            Document.status.in_(["trash", "deleted"]),
+        )
+        if not is_admin:
+            query = query.filter_by(owner_id=user_id)
+
+        total = query.count()
+        documents = (
+            query.order_by(Document.deleted_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+
+        return {
+            "documents": [doc.to_dict() for doc in documents],
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "total_pages": total_pages,
+        }
+

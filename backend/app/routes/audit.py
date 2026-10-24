@@ -76,3 +76,12 @@ def get_audit_event(event_id):
     if not event:
         raise APIError("Audit event not found.", status_code=404)
     return jsonify(event.to_dict()), 200
+
+
+@audit_bp.route("/audit-events/verify-chain", methods=["GET"])
+@admin_required
+def verify_audit_chain():
+    from ..services.audit_service import AuditService
+    result = AuditService.verify_chain(organization_id=g.current_org.id)
+    return jsonify(result), 200
+

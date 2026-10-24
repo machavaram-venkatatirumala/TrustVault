@@ -64,15 +64,36 @@ class DashboardService:
             last_verification_status="mismatch",
         ).count()
 
-        total_storage_bytes = (
-            db.session.query(func.coalesce(func.sum(Document.size_bytes), 0))
-            .filter(
-                Document.organization_id == organization_id,
-                Document.status == "active",
-            )
-            .scalar()
-            or 0
-        )
+        active_docs = Document.query.filter_by(
+            organization_id=organization_id, status="active"
+        ).all()
+
+        storage_by_type = {
+            "pdf": {"count": 0, "bytes": 0, "label": "PDF Documents"},
+            "documents": {"count": 0, "bytes": 0, "label": "Word & Text"},
+            "spreadsheets": {"count": 0, "bytes": 0, "label": "Spreadsheets"},
+            "images": {"count": 0, "bytes": 0, "label": "Images & Media"},
+            "other": {"count": 0, "bytes": 0, "label": "Other Files"},
+        }
+        for doc in active_docs:
+            mime = (doc.content_type or "").lower()
+            ext = (doc.original_filename.split(".")[-1] if "." in doc.original_filename else "").lower()
+            if "pdf" in mime or ext == "pdf":
+                key = "pdf"
+            elif any(x in mime for x in ["word", "officedocument.wordprocessing", "text", "markdown"]) or ext in ["doc", "docx", "txt", "md", "rtf"]:
+                key = "documents"
+            elif any(x in mime for x in ["excel", "officedocument.spreadsheet", "csv"]) or ext in ["xls", "xlsx", "csv"]:
+                key = "spreadsheets"
+            elif "image" in mime or ext in ["png", "jpg", "jpeg", "webp", "gif", "svg"]:
+                key = "images"
+            else:
+                key = "other"
+            storage_by_type[key]["count"] += 1
+            storage_by_type[key]["bytes"] += (doc.size_bytes or 0)
+
+        total_storage_bytes = sum(doc.size_bytes or 0 for doc in active_docs)
+        quota_bytes = 1024 * 1024 * 1024  # 1 GB Starter limit
+        remaining_storage_bytes = max(0, quota_bytes - int(total_storage_bytes))
 
         return {
             "total_documents": total_documents,
@@ -83,7 +104,9 @@ class DashboardService:
             "verified_count": verified_count,
             "mismatch_count": mismatch_count,
             "total_storage_bytes": int(total_storage_bytes),
-            "storage_quota_bytes": 1024 * 1024 * 1024,  # 1 GB Starter limit
+            "storage_quota_bytes": quota_bytes,
+            "remaining_storage_bytes": remaining_storage_bytes,
+            "storage_by_type": storage_by_type,
             "max_members": 5,
             "max_upload_size_bytes": 25 * 1024 * 1024,  # 25 MB limit
             "plan_name": "Starter Vault",

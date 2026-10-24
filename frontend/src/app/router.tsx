@@ -30,6 +30,17 @@ import { ContactPage } from '../features/legal/ContactPage';
 import { CookieConsent } from '../components/layout/CookieConsent';
 import { AppLoadingMark } from '../components/brand/TrustVaultLogo';
 
+// Enterprise Features
+import { AccessExplorerPage } from '../features/access-explorer/AccessExplorerPage';
+import { ApprovalsPage } from '../features/approvals/ApprovalsPage';
+import { PoliciesPage } from '../features/policies/PoliciesPage';
+import { EvidenceCenterPage } from '../features/evidence/EvidenceCenterPage';
+import { IntegrationsPage } from '../features/integrations/IntegrationsPage';
+import { QuotasPage } from '../features/quotas/QuotasPage';
+import { FeatureFlagsPage } from '../features/feature-flags/FeatureFlagsPage';
+import { AccessReviewsPage } from '../features/governance/AccessReviewsPage';
+import { SavedSearchesPage } from '../features/governance/SavedSearchesPage';
+
 function RootLayout() {
   return (
     <>
@@ -44,7 +55,7 @@ function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background-warm flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <AppLoadingMark message="Verifying session and security context..." />
       </div>
     );
@@ -129,16 +140,31 @@ export const router = createBrowserRouter([
             children: [
               { index: true, element: <OverviewPage /> },
               { path: 'overview', element: <OverviewPage /> },
+              
+              // Documents Group
               { path: 'documents', element: <DocumentsPage /> },
               { path: 'documents/:id', element: <DocumentDetailPage /> },
+              { path: 'access-explorer', element: <AccessExplorerPage /> },
+              { path: 'approvals', element: <ApprovalsPage /> },
+              { path: 'saved-searches', element: <SavedSearchesPage /> },
               { path: 'shared-with-me', element: <SharedWithMePage /> },
               { path: 'shared', element: <SharedWithMePage /> },
               { path: 'sharing', element: <PermissionsPage /> },
               { path: 'permissions', element: <PermissionsPage /> },
+              
+              // Security & Governance Group
+              { path: 'policies', element: <PoliciesPage /> },
+              { path: 'access-reviews', element: <AccessReviewsPage /> },
               { path: 'audit', element: <AuditCenterPage /> },
+              { path: 'evidence-center', element: <EvidenceCenterPage /> },
+              { path: 'security', element: <SecurityControlsPage /> },
+              
+              // Workspace Administration Group
               { path: 'members', element: <MembersPage /> },
               { path: 'invitations', element: <InvitationsPage /> },
-              { path: 'security', element: <SecurityControlsPage /> },
+              { path: 'integrations', element: <IntegrationsPage /> },
+              { path: 'quotas', element: <QuotasPage /> },
+              { path: 'feature-flags', element: <FeatureFlagsPage /> },
               { path: 'settings', element: <SettingsPage /> },
               { path: 'billing', element: <BillingPage /> },
               { path: 'profile', element: <ProfilePage /> },

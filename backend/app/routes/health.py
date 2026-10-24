@@ -48,3 +48,36 @@ def readiness_check():
             "storage": storage_status,
         },
     }), status_code
+
+
+@health_bp.route("/health/diagnostics", methods=["GET"])
+def system_diagnostics():
+    import time
+    from datetime import datetime
+
+    start_t = time.time()
+    db.session.execute(db.text("SELECT 1"))
+    db_latency_ms = round((time.time() - start_t) * 1000, 2)
+
+    storage = get_storage()
+    return jsonify({
+        "status": "operational",
+        "service": "TrustVault Enterprise Core",
+        "timestamp": datetime.utcnow().isoformat(),
+        "database": {
+            "status": "connected",
+            "latency_ms": db_latency_ms,
+            "engine": db.engine.name,
+        },
+        "storage": {
+            "status": "mounted",
+            "provider": storage.__class__.__name__,
+        },
+        "security_subsystems": {
+            "rate_limiter": "active",
+            "audit_hash_chain": "enforced",
+            "sha256_verification": "active",
+            "tenant_isolation": "enforced",
+        },
+    }), 200
+

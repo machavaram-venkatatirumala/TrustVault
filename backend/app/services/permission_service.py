@@ -5,6 +5,7 @@ from ..extensions import db
 from ..errors import APIError
 from ..models import Document, DocumentPermission, OrganizationMembership, User, Organization
 from .audit_service import AuditService
+from .notification_service import NotificationService
 
 
 class PermissionService:
@@ -89,6 +90,18 @@ class PermissionService:
             },
         )
 
+        try:
+            NotificationService.create_notification(
+                user_id=recipient_user_id,
+                organization_id=organization.id,
+                title="Document Shared With You",
+                message=f"{actor.full_name} shared '{document.original_filename}' with {permission_level.upper()} access.",
+                notification_type="share",
+                link=f"/app/documents/{document.id}",
+            )
+        except Exception:
+            pass
+
         return permission.to_dict()
 
     @staticmethod
@@ -125,6 +138,18 @@ class PermissionService:
                 "recipient_id": permission.recipient_user_id,
             },
         )
+
+        try:
+            NotificationService.create_notification(
+                user_id=permission.recipient_user_id,
+                organization_id=organization.id,
+                title="Access Revoked",
+                message=f"Access to '{document.original_filename if document else 'document'}' has been revoked by {actor.full_name}.",
+                notification_type="revocation",
+                link="/app/shared-with-me",
+            )
+        except Exception:
+            pass
 
         return {"message": "Access permission revoked successfully.", "id": permission.id}
 
@@ -186,3 +211,53 @@ class PermissionService:
                 "can_download": p.permission_level == "download",
             })
         return results
+
+    @staticmethod
+    def get_sharing_overview(organization_id: str, actor: User, is_admin: bool = False) -> dict:
+        now = datetime.utcnow()
+        query = DocumentPermission.query.filter_by(organization_id=organization_id)
+        if not is_admin:
+            query = query.join(Document).filter(
+                or_(
+                    DocumentPermission.granted_by == actor.id,
+                    Document.owner_id == actor.id,
+                    DocumentPermission.recipient_user_id == actor.id,
+                )
+            )
+
+        all_perms = query.order_by(DocumentPermission.created_at.desc()).all()
+
+        active_shares = []
+        expired_shares = []
+        revoked_shares = []
+
+        for p in all_perms:
+            data = p.to_dict()
+            if p.revoked_at is not None:
+                revoked_shares.append(data)
+            elif p.expires_at is not None and p.expires_at < now:
+                expired_shares.append(data)
+            else:
+                active_shares.append(data)
+
+        # Pending workspace invitations (if any)
+        pending_mems = OrganizationMembership.query.filter_by(
+            organization_id=organization_id,
+            status="invited",
+        ).all()
+        invitations = [m.to_dict() for m in pending_mems]
+
+        return {
+            "active_shares": active_shares,
+            "expired_shares": expired_shares,
+            "revoked_shares": revoked_shares,
+            "pending_invitations": invitations,
+            "counts": {
+                "active": len(active_shares),
+                "expired": len(expired_shares),
+                "revoked": len(revoked_shares),
+                "pending": len(invitations),
+                "total": len(all_perms),
+            },
+        }
+

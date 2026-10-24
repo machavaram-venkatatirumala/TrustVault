@@ -5,6 +5,7 @@ from ..errors import APIError
 from ..models import OrganizationMembership, User, DocumentPermission
 from ..security.hashing import hash_password
 from .audit_service import AuditService
+from .notification_service import NotificationService
 
 
 class MemberService:
@@ -180,5 +181,17 @@ class MemberService:
             outcome="success",
             metadata={"member_email": email, "role": role},
         )
+
+        try:
+            NotificationService.create_notification(
+                user_id=user.id,
+                organization_id=organization_id,
+                title="Workspace Invitation",
+                message=f"You have been added to the workspace with the {role.upper()} role by {actor.full_name}.",
+                notification_type="invitation",
+                link="/app/overview",
+            )
+        except Exception:
+            pass
 
         return membership.to_dict()

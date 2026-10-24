@@ -1,4 +1,5 @@
 import os
+os.environ["DISABLE_SQLALCHEMY_CEXT"] = "1"
 import shutil
 import tempfile
 from pathlib import Path

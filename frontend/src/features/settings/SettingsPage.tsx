@@ -24,6 +24,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { api } from '../../lib/api';
+import { DeveloperPortalSection } from './DeveloperPortalSection';
 
 export function SettingsPage() {
   const { user, organization, role, isAdmin, updateProfile, deleteAccount, refetch } = useAuth();
@@ -32,12 +33,13 @@ export function SettingsPage() {
   // Profile updating
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [activeTab, setActiveTab] = useState<'general' | 'developer' | 'export'>('general');
 
   // Workspace identity editing (Admin)
   const [isEditingOrg, setIsEditingOrg] = useState(false);
   const [orgName, setOrgName] = useState(organization?.name || '');
   const [orgSlug, setOrgSlug] = useState(
-    organization?.slug || 'kkr-ksr-institute-of-technology-and-sciences'
+    organization?.slug || ''
   );
   const [savingOrg, setSavingOrg] = useState(false);
   const [slugChecking, setSlugChecking] = useState(false);
@@ -52,7 +54,7 @@ export function SettingsPage() {
   useEffect(() => {
     if (organization) {
       setOrgName(organization.name);
-      setOrgSlug(organization.slug || 'kkr-ksr-institute-of-technology-and-sciences');
+      setOrgSlug(organization.slug || '');
     }
   }, [organization]);
 
@@ -251,7 +253,7 @@ export function SettingsPage() {
 
   const handleStartEdit = () => {
     setOrgName(organization?.name || '');
-    setOrgSlug(organization?.slug || 'kkr-ksr-institute-of-technology-and-sciences');
+    setOrgSlug(organization?.slug || '');
     setSlugError(null);
     setNameError(null);
     setIsEditingOrg(true);
@@ -259,7 +261,7 @@ export function SettingsPage() {
 
   const handleCancelEdit = () => {
     setOrgName(organization?.name || '');
-    setOrgSlug(organization?.slug || 'kkr-ksr-institute-of-technology-and-sciences');
+    setOrgSlug(organization?.slug || '');
     setSlugError(null);
     setNameError(null);
     setSlugAvailability({ available: null, message: null });
@@ -349,13 +351,54 @@ export function SettingsPage() {
           Settings & Preferences
         </h2>
         <p className="mt-0.5 text-xs text-text-secondary">
-          Manage your personal identity, workspace name, and cryptographic security policies.
+          Manage your personal identity, workspace name, cryptographic security policies, and developer integrations.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {/* Profile Card */}
-        <Card>
+      {/* Settings Navigation Tabs */}
+      <div className="flex items-center gap-1.5 p-1 bg-surface-subtle border border-border rounded-medium w-fit text-xs">
+        <button
+          type="button"
+          onClick={() => setActiveTab('general')}
+          className={`px-3 py-1.5 rounded-small font-medium transition-colors ${
+            activeTab === 'general'
+              ? 'bg-white text-text-primary shadow-xs border border-border/80'
+              : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          General & Identity
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('developer')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-small font-medium transition-colors ${
+            activeTab === 'developer'
+              ? 'bg-white text-text-primary shadow-xs border border-border/80'
+              : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          <span>Developer & Webhooks</span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-mono font-semibold">v1</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('export')}
+          className={`px-3 py-1.5 rounded-small font-medium transition-colors ${
+            activeTab === 'export'
+              ? 'bg-white text-text-primary shadow-xs border border-border/80'
+              : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          Data Portability
+        </button>
+      </div>
+
+      {activeTab === 'developer' && <DeveloperPortalSection />}
+
+      {activeTab === 'general' && (
+        <div className="grid grid-cols-1 gap-6">
+          {/* Profile Card */}
+          <Card>
           <CardHeader>
             <CardTitle>Personal Profile</CardTitle>
             <CardDescription>Your account credentials and display name settings.</CardDescription>
@@ -420,7 +463,7 @@ export function SettingsPage() {
                       if (nameError) setNameError(null);
                     }}
                     error={nameError || undefined}
-                    placeholder="e.g. KKR & KSR Institute of Technology and Sciences"
+                    placeholder="e.g. Acme Corporation"
                     required
                   />
 
@@ -430,7 +473,7 @@ export function SettingsPage() {
                       value={orgSlug}
                       onChange={(e) => handleSlugChange(e.target.value)}
                       error={slugError || undefined}
-                      placeholder="kkr-ksr-institute-of-technology-and-sciences"
+                      placeholder="e.g. acme-corp"
                       className="font-mono text-xs"
                       required
                       rightIcon={
@@ -520,7 +563,7 @@ export function SettingsPage() {
                         Workspace Slug
                       </span>
                       <p className="font-mono text-xs font-semibold text-text-primary">
-                        {organization?.slug || 'kkr-ksr-institute-of-technology-and-sciences'}
+                        {organization?.slug || '—'}
                       </p>
                     </div>
                   </div>
@@ -529,7 +572,7 @@ export function SettingsPage() {
                     <div className="text-[11px] text-text-muted font-mono truncate">
                       <span>URL: </span>
                       <span className="text-text-secondary">
-                        trustvault.app/w/{organization?.slug || 'kkr-ksr-institute-of-technology-and-sciences'}
+                        {organization?.slug ? `trustvault.app/w/${organization.slug}` : '—'}
                       </span>
                     </div>
                     <Button
@@ -650,7 +693,39 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* Data Portability & Workspace Export (Section 15.I) */}
+        {/* Danger Zone: Account Deletion */}
+        <Card className="border-danger/30">
+          <CardHeader>
+            <CardTitle className="text-danger flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Danger Zone</span>
+            </CardTitle>
+            <CardDescription>
+              Irreversible account removal and data retention policies.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-xs">
+            <p className="text-text-secondary">
+              Deleting your account permanently removes your login identity, personal profile, and personal files from the database.
+            </p>
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteModalOpen(true)}
+                className="text-xs text-danger border-danger/40 hover:bg-danger-bg"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                <span>Delete Account</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      )}
+
+      {/* Data Portability & Workspace Export Tab */}
+      {activeTab === 'export' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -731,36 +806,7 @@ export function SettingsPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Danger Zone: Account Deletion */}
-        <Card className="border-danger/30">
-          <CardHeader>
-            <CardTitle className="text-danger flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" />
-              <span>Danger Zone</span>
-            </CardTitle>
-            <CardDescription>
-              Irreversible account removal and data retention policies.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-xs">
-            <p className="text-text-secondary">
-              Deleting your account permanently removes your login identity, personal profile, and personal files from the database.
-            </p>
-            <div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteModalOpen(true)}
-                className="text-xs text-danger border-danger/40 hover:bg-danger-bg"
-              >
-                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                <span>Delete Account</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      )}
 
       {/* Account Deletion Confirmation Dialog */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
