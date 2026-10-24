@@ -8,7 +8,7 @@ This guide details how to configure, package, deploy, and operate TrustVault in 
 
 In production, the application separates the static frontend SPA from the backend API and database:
 
-```
+```text
 [ Internet Traffic ]
         │ (HTTPS :443)
         ▼
@@ -40,12 +40,15 @@ Before deploying TrustVault to production, verify each requirement:
 ## 3. Backend Deployment (Docker / Linux Server)
 
 ### 3.1 Production WSGI Configuration (`gunicorn`)
+
 Install `gunicorn` in the production environment:
+
 ```bash
 pip install gunicorn
 ```
 
 Launch the production WSGI server with 4 worker processes:
+
 ```bash
 gunicorn --workers 4 \
          --threads 2 \
@@ -57,6 +60,7 @@ gunicorn --workers 4 \
 ```
 
 ### 3.2 Production Dockerfile Example
+
 ```dockerfile
 FROM python:3.13-slim
 
@@ -87,18 +91,23 @@ CMD ["gunicorn", "--workers", "4", "--threads", "2", "--bind", "0.0.0.0:5000", "
 ## 4. Frontend Deployment (Static Hosting)
 
 ### 4.1 Production Build
+
 Compile TypeScript and bundle optimized assets:
+
 ```bash
 cd frontend
 npm ci
 npm run build
 ```
+
 This produces optimized HTML, CSS, and JS in `frontend/dist/`.
 
 ### 4.2 Single Page Application (SPA) Routing Rewrite
+
 Configure the web server to rewrite all non-file requests to `/index.html`:
 
 **Nginx Configuration:**
+
 ```nginx
 server {
     listen 80;
@@ -125,7 +134,9 @@ server {
 ## 5. Database Setup & Migrations
 
 ### 5.1 Initialize & Run Migrations
+
 On the production server or during the release phase:
+
 ```bash
 flask db upgrade
 ```
@@ -133,11 +144,13 @@ flask db upgrade
 ### 5.2 Backup and Restore Procedures
 
 **Automated Daily Backup:**
+
 ```bash
 pg_dump -Fc --no-acl --no-owner -h <db_host> -U <db_user> -d <db_name> > trustvault_backup_$(date +%Y%m%d).dump
 ```
 
 **Point-in-Time Restore:**
+
 ```bash
 pg_restore -h <db_host> -U <db_user> -d <db_name> --clean --if-exists trustvault_backup_20261023.dump
 ```
@@ -150,6 +163,7 @@ To use AWS S3, Cloudflare R2, or MinIO:
 
 1. Create a bucket with **Block All Public Access** enabled.
 2. Create an IAM User with limited least-privilege permissions:
+
    ```json
    {
      "Version": "2012-10-17",
@@ -166,7 +180,9 @@ To use AWS S3, Cloudflare R2, or MinIO:
      ]
    }
    ```
+
 3. Set environment variables:
+
    ```env
    STORAGE_PROVIDER=s3
    AWS_ACCESS_KEY_ID=AKIA...

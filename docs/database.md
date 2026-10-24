@@ -101,7 +101,9 @@ erDiagram
 ## 2. Table Specifications & Constraints
 
 ### `organizations`
+
 Stores top-level tenant boundaries.
+
 - **`id`** (`VARCHAR(36)`): UUID v4 primary key.
 - **`name`** (`VARCHAR(120)`): Display name of the workspace.
 - **`slug`** (`VARCHAR(120)`): Unique normalized URL/reference slug.
@@ -110,7 +112,9 @@ Stores top-level tenant boundaries.
 - **Indexes:** `idx_org_slug` on `(slug)`.
 
 ### `users`
+
 Stores user identities and authentication security credentials.
+
 - **`id`** (`VARCHAR(36)`): UUID v4 primary key.
 - **`full_name`** (`VARCHAR(120)`): User's legal/display name.
 - **`email`** (`VARCHAR(255)`): Normalized lowercase unique email address. Enforced by unique index `idx_user_email`.
@@ -122,7 +126,9 @@ Stores user identities and authentication security credentials.
 - **Indexes:** `idx_user_email` on `(email)`.
 
 ### `organization_memberships`
+
 Join table establishing tenant association and role-based access.
+
 - **`organization_id`** (`VARCHAR(36)`) REFERENCES `organizations(id)` ON DELETE CASCADE.
 - **`user_id`** (`VARCHAR(36)`) REFERENCES `users(id)` ON DELETE CASCADE.
 - **`role`** (`VARCHAR(20)`): `'admin'` (full management & audit access) or `'member'` (standard access).
@@ -131,7 +137,9 @@ Join table establishing tenant association and role-based access.
 - **Indexes:** `idx_org_user_role` on `(organization_id, user_id, role)`.
 
 ### `documents`
+
 Stores document metadata, opaque storage pointers, and cryptographic digests.
+
 - **`id`** (`VARCHAR(36)`): UUID v4 primary key.
 - **`organization_id`** (`VARCHAR(36)`) REFERENCES `organizations(id)` ON DELETE CASCADE.
 - **`owner_id`** (`VARCHAR(36)`) REFERENCES `users(id)` ON DELETE RESTRICT.
@@ -145,7 +153,9 @@ Stores document metadata, opaque storage pointers, and cryptographic digests.
 - **Indexes:** `idx_doc_org_created`, `idx_doc_org_owner`, `idx_doc_hash`.
 
 ### `document_permissions`
+
 Stores fine-grained access grants between documents and workspace members.
+
 - **`document_id`** (`VARCHAR(36)`) REFERENCES `documents(id)` ON DELETE CASCADE.
 - **`organization_id`** (`VARCHAR(36)`) REFERENCES `organizations(id)` ON DELETE CASCADE.
 - **`granted_by`** (`VARCHAR(36)`) REFERENCES `users(id)` ON DELETE RESTRICT.
@@ -156,7 +166,9 @@ Stores fine-grained access grants between documents and workspace members.
 - **Indexes:** `idx_perm_recipient_active` on `(recipient_user_id, revoked_at)`, `idx_perm_doc_active` on `(document_id, revoked_at)`.
 
 ### `audit_logs`
+
 Append-only tamper-evident operational security log.
+
 - **`organization_id`** (`VARCHAR(36)`) REFERENCES `organizations(id)` ON DELETE CASCADE.
 - **`actor_user_id`** (`VARCHAR(36)`) REFERENCES `users(id)` ON DELETE SET NULL.
 - **`action`** (`VARCHAR(64)`): Canonical action (e.g. `auth.login`, `document.upload`, `permission.revoke`, `integrity.verify_mismatch`).
@@ -185,7 +197,9 @@ flask db upgrade
 ```
 
 ### Local Development Quick-Bootstrap
+
 For rapid development on SQLite, `migrate_dev_db.py` executes idempotent schema updates directly:
+
 ```bash
 cd backend
 .\venv\Scripts\python migrate_dev_db.py

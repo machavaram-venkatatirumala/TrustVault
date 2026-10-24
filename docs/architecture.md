@@ -4,7 +4,7 @@
 
 **TrustVault** is an enterprise-grade multi-tenant secure document management and audit platform built with a **Forward Deployed Engineer (FDE)** mindset. It solves the critical enterprise challenge of managing confidential documents, enforcing non-negotiable role-based access controls (RBAC), verifying cryptographic integrity using SHA-256 digests, and maintaining a complete, immutable audit trail of every document lifecycle event.
 
-```
+```text
 +-------------------------------------------------------------------------+
 |                        Browser Client (React 19)                       |
 |   Tailwind CSS v4 (TrustVault Design System) + Radix UI + Query + Motion|
@@ -38,6 +38,7 @@
 ## 2. Frontend Architecture
 
 ### 2.1 Technology Stack & Decisions
+
 - **React 19 & TypeScript (Strict Mode)**: Type safety across all API payloads, component props, and domain entities.
 - **Vite 8**: Sub-second Hot Module Replacement (HMR) and optimized Rollup production bundling.
 - **Tailwind CSS v4**: Built upon a custom CSS design system using permanent light design tokens (Primary `#3155D9`, Background `#FFFFFF`, Warm Background `#FAF9F6`, Surface Blue `#F1F5FF`, Text `#20283B`, Danger `#B94352`, Success `#207B61`).
@@ -47,7 +48,8 @@
 - **Lucide React**: Clean, lightweight iconography.
 
 ### 2.2 Directory Structure
-```
+
+```text
 frontend/src/
 ├── app/                  # Application bootstrap, routing, and React Query/Toast providers
 ├── components/
@@ -72,7 +74,9 @@ frontend/src/
 ## 3. Backend Architecture
 
 ### 3.1 Layered Separation of Concerns
+
 The backend follows a strict multi-tier architecture ensuring zero coupling between HTTP routing, business domain logic, and persistence layers:
+
 1. **Routes Layer (`backend/app/routes/`)**: Validates query/body parameters, extracts session context, delegates to service classes, and serializes responses.
 2. **Security & Authorization Layer (`backend/app/security/`)**:
    - `authorization.py`: Decorators (`@login_required`, `@admin_required`) enforcing organization membership, active status, and role authority.
@@ -215,6 +219,7 @@ sequenceDiagram
 ## 6. Real Data Architecture & Security Guarantees
 
 TrustVault enforces a strict **Real Data Only** policy across all environments:
+
 1. **Zero Mock or Demo Data**:
    - Genuinely empty initial state: New tenants start with zero documents, zero permissions, and zero activity logs.
    - Clean authentic empty states with actionable workflows (e.g., *"No documents yet — Upload your first document to begin managing access and verifying integrity."*).
