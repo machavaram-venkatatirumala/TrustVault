@@ -58,7 +58,7 @@ flowchart TD
 ## 2. STRIDE Threat Matrix (20 Evaluated Threats)
 
 | Threat ID | STRIDE Category | Asset Targeted | Severity | Preventive Control | Automated Test Proof |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | **THREAT-01** | Elevation of Privilege | Document Repository & Binaries | Critical | `@login_required` guard rejecting unauthenticated requests with 401 | `test_threat_matrix.py::test_threat_01_anonymous_access_to_document_rejected` |
 | **THREAT-02** | Information Disclosure | Cross-Tenant Documents & Metadata | Critical | Server-side tenant filtering: queries scoped to `g.current_org.id`, returns 404 | `test_threat_matrix.py::test_threat_02_cross_tenant_document_access_rejected` |
 | **THREAT-03** | Elevation of Privilege | Audit Event Trail | High | `@admin_required` decorator enforcing role check; members receive 403 | `test_threat_matrix.py::test_threat_03_member_access_to_admin_audit_logs_rejected` |

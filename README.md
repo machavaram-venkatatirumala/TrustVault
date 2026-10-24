@@ -17,7 +17,7 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
 
 ---
 
-### 📊 FDE Evaluation Rubric Alignment (100 / 100 Marks)
+## 📊 FDE Evaluation Rubric Alignment (100 / 100 Marks)
 
 | Category | Marks | Project Deliverables & Verifiable Evidence | Status |
 | :--- | :---: | :--- | :---: |
@@ -33,7 +33,7 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
 
 ## 🏛️ System Architecture Highlights
 
-```
+```text
                                ┌─────────────────────────────────────────┐
                                │       Browser Client (React 19)         │
                                │  Vite • Tailwind CSS v4 • Radix UI      │
@@ -72,11 +72,13 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
 The application is built strictly against real PostgreSQL/SQLite databases and private storage without artificial mocks, pre-seeded accounts, or fabricated data:
 
 ### Step 1: Create a Personal Workspace (General-Purpose SaaS)
+
 - Navigate to `http://localhost:5173/register`.
 - Enter your full name (`Alex Rivers`), email (`alex.rivers@example.com`), password, and accept the Terms & Conditions.
 - No corporate email or company name is required. TrustVault validates input, normalizes the email, provisions a personal vault (`Alex's Workspace`), securely hashes the password with Argon2id, and logs you into the app.
 
 ### Step 2: Observe Genuine Empty Workspace Telemetry (Rule 1.1)
+
 - Upon landing on the **Overview Dashboard**, observe that metrics reflect genuine database reality:
   - Total Documents: `0`
   - Active Members: `1` (yourself)
@@ -87,21 +89,25 @@ The application is built strictly against real PostgreSQL/SQLite databases and p
 - The **Document Repository** shows: *"No documents yet. Your secure document library starts here. Upload your first document to calculate its integrity fingerprint and manage access."*
 
 ### Step 3: Upload a Document & Inspect Authoritative SHA-256
+
 - Click **Upload Document** and drag in a confidential file (PDF, DOCX, XLSX, PNG, etc.).
 - TrustVault enforces duplicate protection: repeated clicks or network retries with `X-Idempotency-Key` return the existing document without creating duplicate rows or orphaned storage files.
 - The server computes the authoritative SHA-256 byte stream hash, stores the file under an opaque UUID storage key, and updates the dashboard metrics immediately.
 
 ### Step 4: Verify Cryptographic Integrity
+
 - Open **Documents** and inspect the document's cryptographic integrity drawer.
 - Click **Verify Cryptographic Integrity**:
   - The backend re-hashes physical file bytes from disk, detects the byte divergence via constant-time comparison, confirms **Verified Match**, and writes an `integrity.verify_match` security audit event.
 
 ### Step 5: Grant and Revoke Access with Instant Audit Trail
+
 - Click **Manage Access** on any document and grant `view` or `download` permissions to a collaborator.
 - The grant request is idempotent: repeating it with identical policy updates or reuses the active grant rather than generating duplicate records.
 - Revoking access from the administrator panel immediately blocks subsequent member requests with HTTP `403 Forbidden`.
 
 ### Step 6: Review the Immutable Audit Center
+
 - Open **Audit Center** to review real, persisted audit logs:
   - Timestamp, actor name, action, resource, outcome, and metadata payload.
   - Filter by action (`document.upload`, `permission.grant`, `permission.revoke`, `integrity.verify_match`) or outcome (`success`, `failure`, `denied`).
@@ -115,13 +121,14 @@ The application is built strictly against real PostgreSQL/SQLite databases and p
 | **Frontend** | React 19, TypeScript (Strict), Vite 8, Tailwind CSS v4 (TrustVault Light Palette), Radix UI primitives, Lucide React, React Router v7, TanStack Query v5, Recharts, Framer Motion, date-fns |
 | **Backend** | Python 3.13, Flask 3.0, Flask-SQLAlchemy 3.1, Flask-Migrate, Flask-Limiter, Argon2id (`argon2-cffi`), PostgreSQL 16 (with SQLite dev fallback), Pytest |
 | **Storage** | Local private filesystem outside web root (Development) / S3-compatible cloud storage (Production) |
-| **Testing** | 62 Pytest backend integration tests, 24 Vitest frontend component tests |
+| **Testing** | 76 Pytest backend integration tests, 24 Vitest frontend component tests |
 
 ---
 
 ## 💻 Local Development Setup (Windows PowerShell)
 
 ### Prerequisites
+
 - **Python 3.12+**
 - **Node.js 20+** and **npm**
 
@@ -136,6 +143,7 @@ cd "d:\Documents\Tirumala - Projects\TrustVault\backend"
 # 2. Run backend WSGI development server
 .\venv\Scripts\python.exe wsgi.py
 ```
+
 *Backend runs on `http://127.0.0.1:5000` with CORS proxy support.*
 
 ---
@@ -149,6 +157,7 @@ cd "d:\Documents\Tirumala - Projects\TrustVault\frontend"
 # 2. Start Vite development server
 npm run dev
 ```
+
 *Frontend runs on `http://localhost:5173`.*
 
 ---
@@ -156,7 +165,8 @@ npm run dev
 ## 🧪 Automated Testing
 
 ### Backend Test Suite (Pytest)
-Executes 48 comprehensive integration and threat-matrix tests covering user registration, personal workspace creation, Argon2id hashing, session invalidation, RBAC enforcement, cross-tenant isolation, file upload validation, SHA-256 integrity verification, storage tamper detection, permission revocation, duplicate prevention, and all 20 STRIDE threat scenarios:
+
+Executes 76 comprehensive integration and threat-matrix tests covering user registration, personal workspace creation, Argon2id hashing, session invalidation, RBAC enforcement, cross-tenant isolation, file upload validation, SHA-256 integrity verification, storage tamper detection, permission revocation, duplicate prevention, and all 20 STRIDE threat scenarios:
 
 ```powershell
 cd "d:\Documents\Tirumala - Projects\TrustVault\backend"
@@ -164,13 +174,15 @@ cd "d:\Documents\Tirumala - Projects\TrustVault\backend"
 ```
 
 **Output:**
+
 ```text
-====================== 48 passed in 8.02s ======================
+====================== 76 passed in 16.62s ======================
 ```
 
 ---
 
 ### Frontend Test Suite (Vitest)
+
 Executes unit and component tests verifying `IntegrityBadge` states, `LoginPage` validation, permanent light theme enforcement, and legal/cookie pages:
 
 ```powershell
@@ -179,6 +191,7 @@ npm run test
 ```
 
 **Output:**
+
 ```text
  Test Files  5 passed (5)
       Tests  24 passed (24)
@@ -187,6 +200,7 @@ npm run test
 ---
 
 ### Production Build Verification
+
 Verifies strict TypeScript checks and creates minified production bundles:
 
 ```powershell
@@ -195,11 +209,12 @@ npm run build
 ```
 
 **Output:**
+
 ```text
-✓ built in 950ms
+✓ built in 1.10s
 dist/index.html                     1.06 kB
-dist/assets/index-C8Gr69Zz.css     48.60 kB
-dist/assets/index-CrmQ7nNA.js   1,180.28 kB
+dist/assets/index.css              80.75 kB
+dist/assets/index.js            1,517.14 kB
 ```
 
 ---
