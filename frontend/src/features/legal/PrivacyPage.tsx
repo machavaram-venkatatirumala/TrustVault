@@ -98,7 +98,7 @@ export function PrivacyPage() {
         </p>
         <ul className="list-disc pl-5 space-y-1 text-text-secondary">
           <li>Inspect and export all metadata associated with your account and documents.</li>
-          <li>Rectify outdated or inaccurate profile details (e.g., full name, theme preference).</li>
+          <li>Rectify outdated or inaccurate profile details (e.g., full name).</li>
           <li>Revoke document access grants granted to other users at any moment with immediate effect.</li>
           <li>Request complete deletion of your account and private files.</li>
         </ul>

@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import { ActivityPoint } from '../../types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-import { useTheme } from '../../lib/theme';
 import { Activity } from 'lucide-react';
 
 interface ActivityChartProps {
@@ -19,16 +18,13 @@ interface ActivityChartProps {
 }
 
 export function ActivityChart({ data }: ActivityChartProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-
   const hasData =
     data &&
     data.length > 0 &&
     data.some((d) => (d.uploads || 0) > 0 || (d.shares || 0) > 0 || (d.verifications || 0) > 0);
 
-  const gridColor = isDark ? '#2A3546' : '#E5E7EB';
-  const axisColor = isDark ? '#8794A8' : '#8992A3';
+  const gridColor = '#E5E7EB';
+  const axisColor = '#8992A3';
 
   return (
     <Card className="col-span-full lg:col-span-2">
@@ -57,16 +53,16 @@ export function ActivityChart({ data }: ActivityChartProps) {
               <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={isDark ? '#8BA4FF' : '#3155D9'} stopOpacity={0.3} />
-                    <stop offset="95%" stopColor={isDark ? '#8BA4FF' : '#3155D9'} stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#3155D9" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3155D9" stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="colorShares" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={isDark ? '#A5B7FF' : '#6687F5'} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={isDark ? '#A5B7FF' : '#6687F5'} stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#6687F5" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#6687F5" stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="colorVerif" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={isDark ? '#65C8A5' : '#207B61'} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={isDark ? '#65C8A5' : '#207B61'} stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#207B61" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#207B61" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
@@ -74,12 +70,12 @@ export function ActivityChart({ data }: ActivityChartProps) {
                 <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: isDark ? '#182130' : '#FFFFFF',
+                    backgroundColor: '#FFFFFF',
                     borderRadius: '8px',
-                    border: `1px solid ${isDark ? '#2A3546' : '#E5E7EB'}`,
+                    border: '1px solid #E5E7EB',
                     boxShadow: '0 4px 16px -2px rgba(16, 24, 40, 0.2)',
                     fontSize: '12px',
-                    color: isDark ? '#F2F5FA' : '#20283B',
+                    color: '#20283B',
                   }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
@@ -87,7 +83,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
                   type="monotone"
                   dataKey="uploads"
                   name="Uploads"
-                  stroke={isDark ? '#8BA4FF' : '#3155D9'}
+                  stroke="#3155D9"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorUploads)"
@@ -96,7 +92,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
                   type="monotone"
                   dataKey="shares"
                   name="Permission Grants"
-                  stroke={isDark ? '#A5B7FF' : '#6687F5'}
+                  stroke="#6687F5"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorShares)"
@@ -105,7 +101,7 @@ export function ActivityChart({ data }: ActivityChartProps) {
                   type="monotone"
                   dataKey="verifications"
                   name="SHA-256 Verifications"
-                  stroke={isDark ? '#65C8A5' : '#207B61'}
+                  stroke="#207B61"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorVerif)"

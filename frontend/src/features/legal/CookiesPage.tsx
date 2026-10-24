@@ -75,12 +75,7 @@ export function CookiesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <tr className="bg-white dark:bg-elevated">
-                <td className="p-3 font-mono font-medium text-primary">trustvault_theme</td>
-                <td className="p-3 text-text-secondary">Preserves your selected visual theme preference.</td>
-                <td className="p-3 font-mono text-text-muted">"light" | "dark" | "system"</td>
-              </tr>
-              <tr className="bg-white dark:bg-elevated">
+              <tr className="bg-white">
                 <td className="p-3 font-mono font-medium text-primary">trustvault_cookie_consent</td>
                 <td className="p-3 text-text-secondary">Records your cookie preference choices and timestamp.</td>
                 <td className="p-3 font-mono text-text-muted">JSON with consent status</td>

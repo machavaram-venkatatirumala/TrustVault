@@ -69,7 +69,7 @@ export function CookieConsent() {
                 </button>
               </div>
               <p className="text-text-secondary leading-relaxed">
-                TrustVault uses essential session cookies for secure authentication and local storage for interface theme preferences. We do not use third-party advertising trackers. Read our{' '}
+                TrustVault uses essential session cookies for secure authentication. We do not use third-party advertising trackers. Read our{' '}
                 <Link to="/cookies" className="text-primary hover:underline font-medium">
                   Cookie Policy
                 </Link>
@@ -136,13 +136,13 @@ export function CookieConsent() {
             </div>
 
             {/* Category 2: Interface Preferences */}
-            <div className="p-3.5 rounded-medium bg-white dark:bg-elevated border border-border flex items-start justify-between gap-4">
+            <div className="p-3.5 rounded-medium bg-white border border-border flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-text-primary">Interface Theme Preferences</span>
+                  <span className="font-bold text-text-primary">Interface Presentation Preferences</span>
                 </div>
                 <p className="text-text-secondary leading-relaxed text-[11px]">
-                  Permits saving your chosen visual theme (Light, Dark, or System) in local storage to prevent screen flicker upon page load.
+                  Permits saving your client UI preferences and dismissed banner states in local storage.
                 </p>
               </div>
               <input

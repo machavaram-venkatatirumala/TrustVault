@@ -1,8 +1,8 @@
 # TrustVault Build Progress
 
 **Product:** TrustVault — Secure Document Management, Sharing, and Verifiable Integrity  
-**Design System:** Atelier Cobalt (Curated Light `#FAF9F6` & Dark `#0D1118` Themes)  
-**Status:** Complete & Fully Verified (28/28 Backend Tests Passing, 16/16 Frontend Tests Passing, Production Build Passing)  
+**Design System:** TrustVault Permanent Light Design System (`#FAF9F6` Warm Ivory, `#FFFFFF` Surface, `#3155D9` Cobalt Primary)  
+**Status:** Complete & Fully Verified (62/62 Backend Tests Passing, 24/24 Frontend Tests Passing, Production Build Passing)  
 
 ---
 
@@ -17,7 +17,7 @@
 - [x] Configure database migrations (Flask-Migrate/Alembic)
 - [x] Implement health check endpoints (`/api/v1/health`, `/api/v1/ready`)
 - [x] Initialize Vite + React + TypeScript frontend with strict typing
-- [x] Configure Tailwind CSS v4 with Atelier Cobalt design tokens and custom utility classes
+- [x] Configure Tailwind CSS v4 with TrustVault design tokens and custom utility classes
 - [x] Set up frontend base UI primitives and layout shell
 
 ## Phase 2 — Visual Product & Design System
@@ -92,11 +92,12 @@
   - Duplicate permission grant reuses active grant without duplicate audit entries
   - Permission revocation immediately terminates access
   - Dashboard metrics match actual database contents
-- [x] Frontend test suite with Vitest & React Testing Library (**16/16 passed**)
+- [x] Frontend test suite with Vitest & React Testing Library (**24/24 passed**)
   - `IntegrityBadge` states (verified, mismatch, unverified, unavailable)
   - `LoginPage` form rendering, real credentials input, and validation
   - `Sidebar` RBAC link rendering (admin-only links concealed from members)
-  - `ThemeToggle` light/dark theme switching and persistence
+  - Permanent light theme enforcement and removal of theme switches
+  - `WorkspaceSettings` editable name & slug with regex validation and conflict handling
   - `TermsPage`, `PrivacyPage`, `CookiesPage`, `SecurityPage`, `ContactPage` rendering
   - `CookieConsent` banner display, preference modal interaction, and acceptance
 - [x] TypeScript strict checks pass (`tsc -b` with 0 errors)
@@ -132,12 +133,12 @@
   - Audit Center: *"No activity recorded yet — Security events will appear here as actions occur in your workspace."*
   - Dashboard: Zero counts displayed directly (`0`); empty activity chart rendered when no events exist (*"Activity insights will appear as you use TrustVault."*).
 
-## Phase 8 — Atelier Cobalt Design System & Themes
+## Phase 8 — TrustVault Permanent Light Design System
 
-- [x] Defined complete Light palette: `#FAF9F6` background, `#FFFFFF` surface, `#3155D9` cobalt primary, `#20283B` text, `#6687F5` cornflower accent.
-- [x] Defined complete Dark palette: `#0D1118` background, `#182130` surface, `#8BA4FF` cobalt accent, `#F2F5FA` text, `#2A3546` border.
-- [x] Implemented `ThemeProvider` and `ThemeToggle` supporting Light, Dark, and System modes with immediate DOM application and local/profile persistence.
-- [x] Configured Settings page with 3-button theme selector.
+- [x] Enforced permanent premium Light palette: `#FAF9F6` warm ivory background, `#FFFFFF` surface, `#3155D9` cobalt primary, `#20283B` typography, `#6687F5` cornflower accent, `#E5E7EB` stone borders.
+- [x] Removed "Visual Theme (Atelier Cobalt)" label and all Light/Dark/System theme controls across Settings, Navigation, and Profile.
+- [x] Purged legacy theme switching and `.dark` CSS tokens; simplified `ThemeProvider` to enforce permanent light appearance and purge obsolete storage keys.
+- [x] Preserved responsive, accessible layout and visual elegance across all dashboards, documents, audit logs, and settings.
 
 ## Phase 9 — Original Geometric Brand Identity & Animation
 

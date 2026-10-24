@@ -7,7 +7,7 @@
 ```
 +-------------------------------------------------------------------------+
 |                        Browser Client (React 19)                       |
-|   Tailwind CSS v4 (Atelier Cobalt) + Radix UI + TanStack Query + Motion  |
+|   Tailwind CSS v4 (TrustVault Design System) + Radix UI + Query + Motion|
 +-------------------------------------------------------------------------+
                                     │
                          HTTP/JSON + Cookies (CSRF)
@@ -40,7 +40,7 @@
 ### 2.1 Technology Stack & Decisions
 - **React 19 & TypeScript (Strict Mode)**: Type safety across all API payloads, component props, and domain entities.
 - **Vite 8**: Sub-second Hot Module Replacement (HMR) and optimized Rollup production bundling.
-- **Tailwind CSS v4**: Built upon a custom CSS design system using the **Atelier Cobalt** design tokens (Primary `#3155D9`, Background `#FFFFFF`, Warm Background `#FAF9F6`, Surface Blue `#F1F5FF`, Text `#20283B`, Danger `#B94352`, Success `#207B61`).
+- **Tailwind CSS v4**: Built upon a custom CSS design system using permanent light design tokens (Primary `#3155D9`, Background `#FFFFFF`, Warm Background `#FAF9F6`, Surface Blue `#F1F5FF`, Text `#20283B`, Danger `#B94352`, Success `#207B61`).
 - **Radix UI**: Unstyled accessible primitives (Dialogs, Dropdowns, Tooltips, Tabs, Avatars) guaranteeing full WCAG 2.1 compliance and keyboard navigation.
 - **TanStack Query (React Query v5)**: Server state management with intelligent background revalidation, query invalidation on mutations, and unified loading/error states.
 - **Recharts**: Responsive SVG telemetry charts displaying rolling 7-day document upload, sharing, and verification activity.

@@ -9,11 +9,11 @@
 [![Threat Model](https://img.shields.io/badge/STRIDE-20%20Threats%20Tested-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/THREATS.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tsconfig.json)
 [![Security](https://img.shields.io/badge/Auth-Argon2id%20%7C%20RBAC-34486B?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/security.md)
-[![Theme](https://img.shields.io/badge/Theme-Atelier%20Cobalt%20(Light%20%2F%20Dark)-6687F5?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/index.css)
+[![Theme](https://img.shields.io/badge/Theme-TrustVault%20Light-6687F5?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/index.css)
 
 TrustVault is a production-grade, Forward Deployed Engineer portfolio application engineered for individuals, professionals, teams, and organizations that need private file storage, granular access controls, verifiable cryptographic file integrity (SHA-256), and an authentic, tamper-evident audit trail of every important action.
 
-Built from scratch with zero synthetic mock data, TrustVault demonstrates complete full-stack architecture, relational database modeling, zero-trust security controls, private storage isolation, and an elegant **Atelier Cobalt** visual system supporting light, dark, and system themes.
+Built from scratch with zero synthetic mock data, TrustVault demonstrates complete full-stack architecture, relational database modeling, zero-trust security controls, private storage isolation, and an elegant visual design system featuring white, warm ivory, stone, and cobalt-blue accents.
 
 ---
 
@@ -38,7 +38,7 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
                                │       Browser Client (React 19)         │
                                │  Vite • Tailwind CSS v4 • Radix UI      │
                                │  TanStack Query • Recharts • Motion     │
-                               │  Atelier Cobalt Light & Dark Themes     │
+                               │  TrustVault Permanent Light Appearance  │
                                └────────────────────┬────────────────────┘
                                                     │
                                          HTTP / JSON / HttpOnly Cookies
@@ -61,7 +61,7 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
 - **Zero-Trust File Access**: Documents are stored in private storage outside the web root. File downloads require server-side evaluation of ownership, workspace scoping, active grants, and expiration timestamps.
 - **Authoritative Cryptographic Integrity**: SHA-256 digests are calculated on the server from the uploaded byte stream. On-demand verification recalculates the live digest from stored physical bytes to catch bit rot and storage manipulation.
 - **Immutable Audit Logging**: Every registration, authentication event, upload, download, permission grant, revocation, and verification attempt is persisted in a queryable audit center.
-- **Atelier Cobalt Design System**: Curated light (`#FAF9F6`) and dark (`#0D1118`) themes with dynamic `ThemeToggle` (Light, Dark, System) stored locally and in user profile.
+- **TrustVault Light Design System**: Curated permanent light appearance with Warm Ivory (`#FAF9F6`), porcelain, and crisp Cobalt Blue (`#3155D9`) accents.
 - **Original Geometric Identity**: Custom vector geometry combining a protected document, vault enclosure, verified checkmark, and subtle "T" mark, with Motion entrance animations and favicon integration.
 - **Complete Legal Suite**: Fully functional `/terms`, `/privacy`, `/cookies`, `/security`, and `/contact` routes with a restrained, WCAG-compliant `CookieConsent` banner and modal.
 
@@ -112,10 +112,10 @@ The application is built strictly against real PostgreSQL/SQLite databases and p
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend** | React 19, TypeScript (Strict), Vite 8, Tailwind CSS v4 (Atelier Cobalt Light & Dark), Radix UI primitives, Lucide React, React Router v7, TanStack Query v5, Recharts, Framer Motion, date-fns |
+| **Frontend** | React 19, TypeScript (Strict), Vite 8, Tailwind CSS v4 (TrustVault Light Palette), Radix UI primitives, Lucide React, React Router v7, TanStack Query v5, Recharts, Framer Motion, date-fns |
 | **Backend** | Python 3.13, Flask 3.0, Flask-SQLAlchemy 3.1, Flask-Migrate, Flask-Limiter, Argon2id (`argon2-cffi`), PostgreSQL 16 (with SQLite dev fallback), Pytest |
 | **Storage** | Local private filesystem outside web root (Development) / S3-compatible cloud storage (Production) |
-| **Testing** | 28 Pytest backend integration tests, 16 Vitest frontend component tests |
+| **Testing** | 62 Pytest backend integration tests, 24 Vitest frontend component tests |
 
 ---
 
@@ -171,7 +171,7 @@ cd "d:\Documents\Tirumala - Projects\TrustVault\backend"
 ---
 
 ### Frontend Test Suite (Vitest)
-Executes unit and component tests verifying `IntegrityBadge` states, `LoginPage` validation, `ThemeToggle` light/dark switching, and legal/cookie pages:
+Executes unit and component tests verifying `IntegrityBadge` states, `LoginPage` validation, permanent light theme enforcement, and legal/cookie pages:
 
 ```powershell
 cd "d:\Documents\Tirumala - Projects\TrustVault\frontend"
@@ -180,8 +180,8 @@ npm run test
 
 **Output:**
 ```text
- Test Files  4 passed (4)
-      Tests  16 passed (16)
+ Test Files  5 passed (5)
+      Tests  24 passed (24)
 ```
 
 ---

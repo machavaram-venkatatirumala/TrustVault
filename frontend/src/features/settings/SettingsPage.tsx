@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
-import { useTheme, Theme } from '../../lib/theme';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -12,9 +11,6 @@ import {
   Building2,
   Lock,
   CheckCircle2,
-  Moon,
-  Sun,
-  Laptop,
   Trash2,
   AlertTriangle,
   Download,
@@ -31,7 +27,6 @@ import { api } from '../../lib/api';
 
 export function SettingsPage() {
   const { user, organization, role, isAdmin, updateProfile, deleteAccount, refetch } = useAuth();
-  const { theme, setTheme } = useTheme();
   const { success, error } = useToast();
 
   // Profile updating
@@ -158,7 +153,6 @@ export function SettingsPage() {
     try {
       await updateProfile({
         full_name: fullName.trim(),
-        theme_preference: theme,
       });
       success('Profile Saved', 'Your account profile has been updated.');
       refetch();
@@ -355,7 +349,7 @@ export function SettingsPage() {
           Settings & Preferences
         </h2>
         <p className="mt-0.5 text-xs text-text-secondary">
-          Manage your personal identity, theme preferences, workspace name, and cryptographic security policies.
+          Manage your personal identity, workspace name, and cryptographic security policies.
         </p>
       </div>
 
@@ -363,8 +357,8 @@ export function SettingsPage() {
         {/* Profile Card */}
         <Card>
           <CardHeader>
-            <CardTitle>Personal Profile & Theme</CardTitle>
-            <CardDescription>Your account credentials and interface presentation settings.</CardDescription>
+            <CardTitle>Personal Profile</CardTitle>
+            <CardDescription>Your account credentials and display name settings.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-md">
@@ -385,53 +379,6 @@ export function SettingsPage() {
                 <span className="text-[11px] text-text-muted block mt-1">
                   Email normalization is strictly enforced for account security.
                 </span>
-              </div>
-
-              {/* Theme Preference Selection */}
-              <div>
-                <label className="block text-xs font-semibold text-text-primary mb-1.5">
-                  Visual Theme (Atelier Cobalt)
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setTheme('light')}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-small border text-xs font-medium transition-colors ${
-                      theme === 'light'
-                        ? 'border-primary bg-primary-soft text-primary font-semibold'
-                        : 'border-border text-text-secondary hover:bg-surface-subtle'
-                    }`}
-                  >
-                    <Sun className="w-4 h-4 text-warning" />
-                    <span>Light</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTheme('dark')}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-small border text-xs font-medium transition-colors ${
-                      theme === 'dark'
-                        ? 'border-primary bg-primary-soft text-primary font-semibold'
-                        : 'border-border text-text-secondary hover:bg-surface-subtle'
-                    }`}
-                  >
-                    <Moon className="w-4 h-4 text-accent-champagne" />
-                    <span>Dark</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTheme('system')}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-small border text-xs font-medium transition-colors ${
-                      theme === 'system'
-                        ? 'border-primary bg-primary-soft text-primary font-semibold'
-                        : 'border-border text-text-secondary hover:bg-surface-subtle'
-                    }`}
-                  >
-                    <Laptop className="w-4 h-4 text-text-muted" />
-                    <span>System</span>
-                  </button>
-                </div>
               </div>
 
               <Button size="sm" type="submit" loading={savingProfile} className="text-xs">

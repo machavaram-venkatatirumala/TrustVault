@@ -32,7 +32,7 @@ export function TrustVaultSymbol({
       aria-label="TrustVault geometric vault symbol"
     >
       <defs>
-        {/* Subtle dimensional gradients adhering to Atelier Cobalt */}
+        {/* Subtle dimensional gradients for TrustVault permanent light appearance */}
         <linearGradient id="tv-vault-grad" x1="6" y1="4" x2="34" y2="36" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#3155D9" />
           <stop offset="100%" stopColor="#223FA8" />

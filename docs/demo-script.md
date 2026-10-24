@@ -20,7 +20,7 @@
    npm run dev
    # Running on http://localhost:5173
    ```
-3. Open browser to [`http://localhost:5173`](http://localhost:5173). Notice the Atelier Cobalt visual design: Royal Blue navigation, Warm Porcelain background, custom geometric SVG brandmark, and zero fake testimonials or simulated numbers.
+3. Open browser to [`http://localhost:5173`](http://localhost:5173). Notice the TrustVault visual design: Royal Blue navigation, Warm Porcelain background, custom geometric SVG brandmark, and zero fake testimonials or simulated numbers.
 
 ---
 

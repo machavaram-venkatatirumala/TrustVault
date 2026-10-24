@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { TermsPage } from '../src/features/legal/TermsPage';
 import { PrivacyPage } from '../src/features/legal/PrivacyPage';
@@ -7,17 +7,13 @@ import { CookiesPage } from '../src/features/legal/CookiesPage';
 import { SecurityPage } from '../src/features/legal/SecurityPage';
 import { ContactPage } from '../src/features/legal/ContactPage';
 import { ThemeProvider, useTheme } from '../src/lib/theme';
-import { ThemeToggle } from '../src/components/ui/ThemeToggle';
-import { CookieConsent } from '../src/components/layout/CookieConsent';
 
-function ThemeTestComponent() {
-  const { theme, setTheme } = useTheme();
+function ThemeConsumerComponent() {
+  const { theme, resolvedTheme } = useTheme();
   return (
     <div>
       <span data-testid="current-theme">{theme}</span>
-      <button onClick={() => setTheme('dark')} data-testid="set-dark">Set Dark</button>
-      <button onClick={() => setTheme('light')} data-testid="set-light">Set Light</button>
-      <ThemeToggle />
+      <span data-testid="resolved-theme">{resolvedTheme}</span>
     </div>
   );
 }
@@ -86,21 +82,22 @@ describe('Legal & Policy Pages', () => {
   });
 });
 
-describe('Theme System', () => {
-  it('initializes and switches themes cleanly', () => {
+describe('Permanent Light Theme System', () => {
+  beforeEach(() => {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('trustvault_theme', 'dark');
+  });
+
+  it('enforces permanent light appearance and strips dark class and storage key', () => {
     render(
       <ThemeProvider>
-        <ThemeTestComponent />
+        <ThemeConsumerComponent />
       </ThemeProvider>
     );
 
-    const themeDisplay = screen.getByTestId('current-theme');
-    expect(themeDisplay.textContent).toMatch(/light|dark|system/);
-
-    fireEvent.click(screen.getByTestId('set-dark'));
-    expect(themeDisplay.textContent).toBe('dark');
-
-    fireEvent.click(screen.getByTestId('set-light'));
-    expect(themeDisplay.textContent).toBe('light');
+    expect(screen.getByTestId('current-theme').textContent).toBe('light');
+    expect(screen.getByTestId('resolved-theme').textContent).toBe('light');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(localStorage.getItem('trustvault_theme')).toBeNull();
   });
 });
