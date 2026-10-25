@@ -35,10 +35,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         return await api.auth.me();
       } catch (err: any) {
-        if (err.status === 401 || err.status === 403) {
+        if (
+          err.status === 401 ||
+          err.status === 403 ||
+          err.status === 502 ||
+          err.status === 503 ||
+          err.status === 504 ||
+          !err.status
+        ) {
           return null;
         }
-        throw err;
+        return null;
       }
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

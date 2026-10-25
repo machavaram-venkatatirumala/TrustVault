@@ -16,6 +16,23 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        configure: (proxy) => {
+          proxy.on('error', (err, _req, res) => {
+            if (res && 'writeHead' in res && !(res as any).headersSent) {
+              (res as any).writeHead(503, { 'Content-Type': 'application/json' });
+              (res as any).end(
+                JSON.stringify({
+                  error: {
+                    message:
+                      'Backend service is not running on port 5000. Please start the Flask backend server.',
+                    code: 'BACKEND_OFFLINE',
+                    details: { message: err.message },
+                  },
+                })
+              );
+            }
+          });
+        },
       },
     },
   },
