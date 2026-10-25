@@ -27,7 +27,7 @@ TrustVault was subjected to a thorough, security-first architectural audit and a
 
 ## 2. Review Methodology
 
-1. **Threat-Model Grounded Testing:** Every threat scenario cataloged in [`THREATS.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/THREATS.md) was translated into an automated test case in [`backend/tests/test_threat_matrix.py`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py).
+1. **Threat-Model Grounded Testing:** Every threat scenario cataloged in [`THREATS.md`](THREATS.md) was translated into an automated test case in [`backend/tests/test_threat_matrix.py`](backend/tests/test_threat_matrix.py).
 2. **Adversarial White-Box & Black-Box Testing:**
    - Testing unauthorized API requests with forged JSON payloads (e.g., self-assigning `role: "admin"`).
    - Simulating cross-tenant attacks where User A in Tenant A requests resources owned by Tenant B.
@@ -49,7 +49,7 @@ During the iterative engineering and security review phases, several notable vul
 - **Severity:** High
 - **Vulnerability Description:** If the backend accepted a client-provided `sha256` field from multipart form headers or request body, an attacker could upload malicious files while supplying the SHA-256 hash of a clean document, causing the platform to falsely certify the file.
 - **Remediation:** Removed any code reading client hash headers. In `DocumentService.upload_document()`, the file stream is passed through `calculate_sha256_stream()`, which streams the uploaded bytes through Python's `hashlib.sha256()` on the server.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_12_client_cannot_forge_sha256_digest`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_12_client_cannot_forge_sha256_digest`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-02: Path Traversal Vulnerability via User-Supplied Filenames
 - **Severity:** Critical
@@ -57,7 +57,7 @@ During the iterative engineering and security review phases, several notable vul
 - **Remediation:** Two-layer defense implemented:
   1. `sanitize_filename()` strips all `..`, `/`, `\\`, leading dots, and characters outside `[\w\s\.-]`.
   2. The server NEVER uses the user's filename as a disk storage path. Instead, files are saved under an opaque UUID key: `orgs/{org_id}/{yyyy}/{mm}/{uuid}_{suffix}.bin`.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_07_path_traversal_filename_sanitization`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_07_path_traversal_filename_sanitization`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-03: View-Only Permission Bypass on Binary Downloads
 - **Severity:** High
@@ -68,31 +68,31 @@ During the iterative engineering and security review phases, several notable vul
       AuditService.record(..., action="document.download_denied", outcome="denied")
       raise APIError("Download access is not granted for this document (view only).", status_code=403)
   ```
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_16_permission_level_enforcement_view_vs_download`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_16_permission_level_enforcement_view_vs_download`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-04: Cross-Tenant Resource Existence Enumeration
 - **Severity:** Medium
 - **Vulnerability Description:** If Tenant A queried a document UUID belonging to Tenant B and received HTTP 403 Forbidden, an attacker could infer the existence of sensitive document IDs across organizations.
 - **Remediation:** In `DocumentService.get_document()`, queries filter by both `id == doc_id` AND `organization_id == organization.id`. If a record belongs to another tenant, the backend returns HTTP 404 Not Found, completely preserving tenant privacy.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_02_cross_tenant_document_access_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_02_cross_tenant_document_access_rejected`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-05: Single-Use Password Reset Token Replay
 - **Severity:** High
 - **Vulnerability Description:** Password reset tokens could theoretically be re-used within their 1-hour expiration window if not cleared immediately upon consumption.
 - **Remediation:** In `AuthService.reset_password()`, token consumption clears `user.reset_token_hash = None` and `user.reset_token_expires_at = None` in the same database transaction that updates `user.password_hash`. Replay attempts return HTTP 400 Bad Request.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_10_reuse_of_consumed_or_expired_token_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_10_reuse_of_consumed_or_expired_token_rejected`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-06: Client Mutation of System Audit Records
 - **Severity:** Critical
 - **Vulnerability Description:** If REST blueprints exposed POST, PUT, or DELETE routes on `/api/v1/audit-events`, a compromised user or rogue administrator could tamper with historical activity logs.
 - **Remediation:** The audit blueprint (`backend/app/routes/audit.py`) strictly implements `GET` methods. Any client attempting POST, PUT, PATCH, or DELETE receives HTTP 405 Method Not Allowed.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_13_audit_records_immutable_no_client_mutation`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_13_audit_records_immutable_no_client_mutation`](backend/tests/test_threat_matrix.py) passes.
 
 ### Finding SEC-07: Public Registration Role Elevation Injection
 - **Severity:** High
 - **Vulnerability Description:** An attacker sending `{"role": "admin", "is_admin": true}` during public user registration could attempt to gain administrative authority over system records or existing organizations.
 - **Remediation:** `AuthService.register()` completely disregards client-supplied `role` fields. It provisions an isolated personal workspace where the user is an owner of their own sandbox, with zero privileges over foreign tenants.
-- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_04_user_cannot_self_elevate_role`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) passes.
+- **Verification Test:** [`backend/tests/test_threat_matrix.py::test_threat_04_user_cannot_self_elevate_role`](backend/tests/test_threat_matrix.py) passes.
 
 ---
 

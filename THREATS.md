@@ -95,7 +95,7 @@ flowchart TD
 - **Preventive Control:** Route decorators `@login_required` verify active session cookie / token. Rejects with HTTP 401 and `"Authentication required"`.
 - **Detection & Audit Control:** Logged as unauthenticated rejected attempt.
 - **Mitigation & Recovery:** Immediate rejection prior to hitting business logic or storage layer.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_01_anonymous_access_to_document_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_01_anonymous_access_to_document_rejected`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Compromised user credentials; mitigated by Argon2id password hashing and session rotation.
 
 ---
@@ -111,7 +111,7 @@ flowchart TD
 - **Preventive Control:** Document lookup filters by both `id == doc_id` AND `organization_id == g.current_org.id`. Returns HTTP 404 (not 403) so existence is not leaked.
 - **Detection & Audit Control:** Logged security denial audit event.
 - **Mitigation & Recovery:** Multi-tenant database partitioning in service layer.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_02_cross_tenant_document_access_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_02_cross_tenant_document_access_rejected`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Superadmin database compromise (addressed by restricted database credentials).
 
 ---
@@ -127,7 +127,7 @@ flowchart TD
 - **Preventive Control:** `@admin_required` decorator validates `g.current_membership.role == "admin"`. Rejects non-admins with HTTP 403.
 - **Detection & Audit Control:** Security audit event recorded on denial.
 - **Mitigation & Recovery:** Frontend UI hides navigation link, backend hard-enforces HTTP 403.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_03_member_access_to_admin_audit_logs_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_03_member_access_to_admin_audit_logs_rejected`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Legitimate administrator account takeover.
 
 ---
@@ -143,7 +143,7 @@ flowchart TD
 - **Preventive Control:** `AuthService.register()` completely ignores user-supplied role parameters. Public registrations always establish an isolated personal workspace where the user owns their own instance, or assigns standard member status if joining via invitation.
 - **Detection & Audit Control:** Account creation audit event recorded.
 - **Mitigation & Recovery:** Schema-enforced input deserialization.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_04_user_cannot_self_elevate_role`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_04_user_cannot_self_elevate_role`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -159,7 +159,7 @@ flowchart TD
 - **Preventive Control:** Flask-Limiter configured on authentication routes (10 requests/minute on `/login`, 5 requests/minute on `/forgot-password` and `/reset-password`).
 - **Detection & Audit Control:** Throttling returns HTTP 429 Too Many Requests; repeated failures logged to security monitoring.
 - **Mitigation & Recovery:** Client blocked temporarily with exponential backoff.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_05_rate_limiting_enforcement`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_05_rate_limiting_enforcement`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Distributed botnets evading single-IP rate limits (mitigated by WAF / Cloudflare in production).
 
 ---
@@ -175,7 +175,7 @@ flowchart TD
 - **Preventive Control:** Flask sessions enforce `SameSite=Lax` (or `Strict` in production), `Secure=True` under HTTPS, `HttpOnly=True`. CORS is strictly restricted to approved frontend origins (`CORS_ORIGINS`).
 - **Detection & Audit Control:** CORS preflight rejection and origin mismatch headers.
 - **Mitigation & Recovery:** Browser drops cross-origin cookie transmission.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_06_session_cookie_flags_and_isolation`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_06_session_cookie_flags_and_isolation`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Exploits leveraging browser extension vulnerabilities.
 
 ---
@@ -191,7 +191,7 @@ flowchart TD
 - **Preventive Control:** `sanitize_filename()` strips all path traversal characters (`..`, `/`, `\\`), leading dots, and unsafe ASCII. Crucially, the file on disk is NEVER saved under the user's filename: it is saved under a cryptographically opaque UUID storage key (`orgs/{org_id}/{yyyy}/{mm}/{uuid}_{suffix}.bin`).
 - **Detection & Audit Control:** Sanitized filename logged in document record and audit event.
 - **Mitigation & Recovery:** Storage decoupling guarantees zero filesystem traversal.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_07_path_traversal_filename_sanitization`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_07_path_traversal_filename_sanitization`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -207,7 +207,7 @@ flowchart TD
 - **Preventive Control:** Strict validation in `DocumentService.upload_document()`: rejects 0-byte files with HTTP 400 (`"File cannot be empty"`), enforces `MAX_CONTENT_LENGTH` (25MB) at Flask request level, and validates MIME magic byte headers.
 - **Detection & Audit Control:** Rejection returns clean HTTP 400 error.
 - **Mitigation & Recovery:** File stream discarded before persisting.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_08_disallowed_or_empty_upload_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_08_disallowed_or_empty_upload_rejected`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Slowloris slow HTTP uploads (mitigated by Nginx timeout buffers).
 
 ---
@@ -223,7 +223,7 @@ flowchart TD
 - **Preventive Control:** `DocumentService.download_document()` executes a real-time database query validating that an active grant exists where `revoked_at IS NULL` and `(expires_at IS NULL OR expires_at > now)`. Revocation is immediate.
 - **Detection & Audit Control:** Audit event `document.download_denied` is generated immediately.
 - **Mitigation & Recovery:** HTTP 403 returned instantly; no file bytes streamed.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_09_download_denied_immediately_after_revocation`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_09_download_denied_immediately_after_revocation`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** User already downloaded a local copy before revocation occurred (inherent to digital file sharing; mitigated by watermarking/DLP).
 
 ---
@@ -239,7 +239,7 @@ flowchart TD
 - **Preventive Control:** Reset tokens are single-use cryptographically random UUIDs. Upon successful password reset, `user.reset_token_hash = None` and `user.reset_token_expires_at = None` in the same database transaction.
 - **Detection & Audit Control:** Logged as password reset event. Replay attempts return HTTP 400.
 - **Mitigation & Recovery:** Token invalidated immediately after first consumption.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_10_reuse_of_consumed_or_expired_token_rejected`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_10_reuse_of_consumed_or_expired_token_rejected`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Man-in-the-Middle token interception during transit (mitigated by TLS).
 
 ---
@@ -255,7 +255,7 @@ flowchart TD
 - **Preventive Control:** Unique database constraints on `slug` and `(organization_id, user_id)`. Wrapped in atomic DB transactions with duplicate detection returning HTTP 409 Conflict.
 - **Detection & Audit Control:** Unique constraint violation captured and rolled back cleanly.
 - **Mitigation & Recovery:** Idempotent workspace slug generation.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_11_duplicate_workspace_creation_prevention`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_11_duplicate_workspace_creation_prevention`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -271,7 +271,7 @@ flowchart TD
 - **Preventive Control:** The backend **never** trusts client-submitted hashes. `calculate_sha256_stream()` reads the raw bytes received by the server and computes the digest server-side prior to persisting.
 - **Detection & Audit Control:** Server digest stored as authoritative truth.
 - **Mitigation & Recovery:** Client digest headers completely discarded.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_12_client_cannot_forge_sha256_digest`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_12_client_cannot_forge_sha256_digest`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -287,7 +287,7 @@ flowchart TD
 - **Preventive Control:** The REST API does NOT expose any mutation endpoints for audit events. Only `GET` is registered on the blueprint; all write/delete attempts return HTTP 405 Method Not Allowed.
 - **Detection & Audit Control:** Database level append-only policy.
 - **Mitigation & Recovery:** Application architecture enforces read-only access.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_13_audit_records_immutable_no_client_mutation`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_13_audit_records_immutable_no_client_mutation`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Direct database admin console deletion (addressed in Section 4).
 
 ---
@@ -303,7 +303,7 @@ flowchart TD
 - **Preventive Control:** 100% of database interactions use SQLAlchemy 2.0 ORM expressions and parameterized queries. No raw SQL string concatenation exists in the entire codebase.
 - **Detection & Audit Control:** ORM query logging with parameter binding.
 - **Mitigation & Recovery:** Malicious characters are treated strictly as literal string values.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_14_sql_injection_defense`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_14_sql_injection_defense`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -319,7 +319,7 @@ flowchart TD
 - **Preventive Control:** Centralized error handler `register_error_handlers()` formats every error into a sanitized `{ "error": { "message": "...", "status": 4xx/500 } }` envelope. Detailed tracebacks and database connection strings are never returned to clients.
 - **Detection & Audit Control:** Internal server logs capture stack trace while redacting sensitive tokens.
 - **Mitigation & Recovery:** Clean, generic error responses.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_15_no_credentials_in_error_responses`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_15_no_credentials_in_error_responses`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -336,7 +336,7 @@ flowchart TD
   `if not perm or perm.permission_level != "download": raise APIError(..., status_code=403)`. View-only permissions only allow inspecting metadata and SHA-256 digests.
 - **Detection & Audit Control:** Logs `document.download_denied` with outcome `"denied"`.
 - **Mitigation & Recovery:** Server blocks stream transmission with HTTP 403.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_16_permission_level_enforcement_view_vs_download`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_16_permission_level_enforcement_view_vs_download`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Member taking screenshots of preview screen (inherent to client displays).
 
 ---
@@ -352,7 +352,7 @@ flowchart TD
 - **Preventive Control:** `DocumentService.verify_integrity()` explicitly checks `if not storage.exists(storage_key):`. If missing, updates document status to `"unavailable"`, commits clean database record, and returns HTTP 200 with `verified: False, status: "unavailable"` without crashing.
 - **Detection & Audit Control:** Logs `integrity.verify_failed` with `reason: "storage_file_missing"`.
 - **Mitigation & Recovery:** Graceful degradation.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_17_missing_storage_file_handled_gracefully`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_17_missing_storage_file_handled_gracefully`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Storage hardware failure (mitigated by cloud replication in production).
 
 ---
@@ -370,7 +370,7 @@ flowchart TD
   2. React automatically encodes JSX text nodes to prevent inline HTML execution.
 - **Detection & Audit Control:** Sanitized filename persisted.
 - **Mitigation & Recovery:** Harmless escaped string rendered.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_18_xss_sanitization_in_filenames_and_metadata`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_18_xss_sanitization_in_filenames_and_metadata`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** None.
 
 ---
@@ -386,7 +386,7 @@ flowchart TD
 - **Preventive Control:** Flask-Limiter is configured using `get_remote_address`, relying on the trusted proxy socket connection rather than unverified client-supplied headers unless explicit reverse-proxy middleware (like `ProxyFix`) is configured with trusted proxy counts.
 - **Detection & Audit Control:** Request IP logged in structured application logs.
 - **Mitigation & Recovery:** Socket IP attribution prevents arbitrary header spoofing.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_19_proxy_header_trust_controls`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_19_proxy_header_trust_controls`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Highly distributed botnets using genuine distinct IPs.
 
 ---
@@ -402,7 +402,7 @@ flowchart TD
 - **Preventive Control:** Dynamic verification engine `DocumentService.verify_integrity()` recalculates SHA-256 on live stored bytes and performs constant-time comparison against `document.sha256_hash`. If any byte is altered, immediately flags status as `"mismatch"`, records security alert in audit log, and alerts user.
 - **Detection & Audit Control:** Generates security audit event `integrity.verify_mismatch` with outcome `"failure"`.
 - **Mitigation & Recovery:** User alerted immediately with red mismatch badge; file flagged as untrusted.
-- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_20_tampered_storage_detected_by_sha256_verification`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)
+- **Automated Test Proof:** [`backend/tests/test_threat_matrix.py::test_threat_20_tampered_storage_detected_by_sha256_verification`](backend/tests/test_threat_matrix.py)
 - **Residual Risk:** Attacker with database access simultaneously updating both the file bytes and the expected hash in PostgreSQL (addressed in Section 4).
 
 ---

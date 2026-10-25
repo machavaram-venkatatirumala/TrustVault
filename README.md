@@ -6,10 +6,10 @@
 
 [![Backend Tests](https://img.shields.io/badge/backend%20tests-76%20passed-207B61?style=flat-square)](backend/tests)
 [![Frontend Tests](https://img.shields.io/badge/frontend%20tests-24%20passed-207B61?style=flat-square)](frontend/tests)
-[![Threat Model](https://img.shields.io/badge/STRIDE-20%20Threats%20Tested-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/THREATS.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3155D9?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/tsconfig.json)
-[![Security](https://img.shields.io/badge/Auth-Argon2id%20%7C%20RBAC-34486B?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/security.md)
-[![Theme](https://img.shields.io/badge/Theme-TrustVault%20Light-6687F5?style=flat-square)](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/index.css)
+[![Threat Model](https://img.shields.io/badge/STRIDE-20%20Threats%20Tested-3155D9?style=flat-square)](THREATS.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3155D9?style=flat-square)](frontend/tsconfig.json)
+[![Security](https://img.shields.io/badge/Auth-Argon2id%20%7C%20RBAC-34486B?style=flat-square)](docs/security.md)
+[![Theme](https://img.shields.io/badge/Theme-TrustVault%20Light-6687F5?style=flat-square)](frontend/src/index.css)
 
 TrustVault is a production-grade, Forward Deployed Engineer portfolio application engineered for individuals, professionals, teams, and organizations that need private file storage, granular access controls, verifiable cryptographic file integrity (SHA-256), and an authentic, tamper-evident audit trail of every important action.
 
@@ -22,11 +22,11 @@ Built from scratch with zero synthetic mock data, TrustVault demonstrates comple
 | Category | Marks | Project Deliverables & Verifiable Evidence | Status |
 | :--- | :---: | :--- | :---: |
 | **Security Controls** | **35** | Real server-side authorization, Argon2id hashing, private file storage outside web root (`storage/` under opaque UUID keys), dynamic SHA-256 integrity verification, authorized streaming downloads, immediate revocation, strict CORS, rate-limiting on sensitive routes, no hardcoded credentials. | ✅ **Verified** |
-| **Threat Thinking** | **15** | [`THREATS.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/THREATS.md) detailing 20 STRIDE threats with complete attack vectors, preventive controls, audit detection, and exact automated tests in [`backend/tests/test_threat_matrix.py`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py) (20/20 passed). | ✅ **Verified** |
+| **Threat Thinking** | **15** | [`THREATS.md`](THREATS.md) detailing 20 STRIDE threats with complete attack vectors, preventive controls, audit detection, and exact automated tests in [`backend/tests/test_threat_matrix.py`](backend/tests/test_threat_matrix.py) (20/20 passed). | ✅ **Verified** |
 | **Core Functionality** | **15** | 10 core requirements operational end-to-end: authentication, workspaces, upload, repository, sharing, Shared With Me, integrity verification, audit center, member management, real dashboard telemetry & settings. | ✅ **Verified** |
-| **AI Usage Evidence** | **15** | [`PROMPTS.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/PROMPTS.md) documenting prompts, tool directions, code reviews, and honest documentation of real mistakes caught and resolved (missing DB columns, Badge variant TS error, sun icon removal, tamper button removal). | ✅ **Verified** |
+| **AI Usage Evidence** | **15** | [`PROMPTS.md`](PROMPTS.md) documenting prompts, tool directions, code reviews, and honest documentation of real mistakes caught and resolved (missing DB columns, Badge variant TS error, sun icon removal, tamper button removal). | ✅ **Verified** |
 | **Engineering Quality** | **10** | TypeScript strict mode, clean modular service architecture, centralized error handling with request IDs, atomic database transactions, duplicate prevention, 64 passing automated tests. | ✅ **Verified** |
-| **Docs, Deploy & Demo** | **10** | [`README.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/README.md), [`docs/architecture.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/architecture.md), [`docs/security.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/security.md), [`docs/deployment.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/deployment.md), [`docs/demo-script.md`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/docs/demo-script.md), Docker Compose, and `.env.example`. | ✅ **Verified** |
+| **Docs, Deploy & Demo** | **10** | [`README.md`](README.md), [`docs/architecture.md`](docs/architecture.md), [`docs/security.md`](docs/security.md), [`docs/deployment.md`](docs/deployment.md), [`docs/demo-script.md`](docs/demo-script.md), Docker Compose, and `.env.example`. | ✅ **Verified** |
 | **Total Score** | **100** | **Comprehensive, verified, production-grade application** | 🏆 **100/100** |
 
 ---

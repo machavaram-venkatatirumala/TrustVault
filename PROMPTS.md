@@ -100,31 +100,31 @@ During the development process, several AI-generated implementations contained d
 - **Issue:** During early iterations, new columns (`theme_preference`, `terms_version`, `terms_accepted_at` on `users`, and `workspace_type` on `organizations`) were added to the SQLAlchemy models, but the existing local SQLite database (`instance/trustvault.db`) had been created prior to these definitions.
 - **Symptom:** `sqlalchemy.exc.OperationalError: no such column: users.theme_preference` occurred upon user login and registration.
 - **Verification:** Inspection of traceback revealed that `db.create_all()` in SQLAlchemy does not alter pre-existing tables.
-- **Correction:** Authored and executed [`backend/migrate_dev_db.py`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/migrate_dev_db.py) to issue idempotent `ALTER TABLE` statements adding all missing columns.
+- **Correction:** Authored and executed [`backend/migrate_dev_db.py`](backend/migrate_dev_db.py) to issue idempotent `ALTER TABLE` statements adding all missing columns.
 
 ### Defect 2: TypeScript Compilation Failure in Badge Variant
-- **Issue:** In [`frontend/src/features/landing/LandingPage.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/features/landing/LandingPage.tsx), the AI placed `<Badge variant="verified">` in an illustrative hero component preview.
+- **Issue:** In [`frontend/src/features/landing/LandingPage.tsx`](frontend/src/features/landing/LandingPage.tsx), the AI placed `<Badge variant="verified">` in an illustrative hero component preview.
 - **Symptom:** `npm run build` failed with `LandingPage.tsx(195,30): error TS2322: Type '"verified"' is not assignable to type '"default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info"'`.
 - **Correction:** Replaced `variant="verified"` with supported `variant="success"`. Re-ran `npm run build` to confirm zero errors.
 
 ### Defect 3: Non-Compliant Theme Toggle Button in Header
 - **Issue:** An initial UI pass placed a standalone sun/moon icon toggle button in the application topbar and landing page navbar.
 - **Symptom:** Violated Master Build Prompt Section 3 & 8: *"Do not display the sun icon or the sun-icon theme-toggle button shown in the supplied reference image. Do not add a standalone sun button to the header, navbar, or floating UI. Appearance selection belongs in Settings."*
-- **Correction:** Removed the standalone sun-icon button from [`Topbar.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/layout/Topbar.tsx), [`LandingPage.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/features/landing/LandingPage.tsx), and authentication screens. Confined appearance selection (Light, Dark, System) exclusively to [`SettingsPage.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/features/settings/SettingsPage.tsx). Verified visually via browser subagent screenshots.
+- **Correction:** Removed the standalone sun-icon button from [`Topbar.tsx`](frontend/src/components/layout/Topbar.tsx), [`LandingPage.tsx`](frontend/src/features/landing/LandingPage.tsx), and authentication screens. Confined appearance selection (Light, Dark, System) exclusively to [`SettingsPage.tsx`](frontend/src/features/settings/SettingsPage.tsx). Verified visually via browser subagent screenshots.
 
 ### Defect 4: "Simulate Tamper" UI Button in Production Document Modal
-- **Issue:** A developer testing helper button ("Simulate Storage Tamper") was initially rendered inside [`DocumentDetailsModal.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/documents/DocumentDetailsModal.tsx).
+- **Issue:** A developer testing helper button ("Simulate Storage Tamper") was initially rendered inside [`DocumentDetailsModal.tsx`](frontend/src/components/documents/DocumentDetailsModal.tsx).
 - **Symptom:** Violated Master Build Prompt Section 11: *"Do not provide an unauthenticated tampering simulation that modifies real stored files. If a future integrity test utility is created, isolate it from production storage and clearly identify it as a controlled test feature."*
-- **Correction:** Removed the tamper simulation button from the client UI modal so users cannot tamper with stored production records. Implemented the verification test in isolated test suites ([`test_threat_matrix.py::test_threat_20`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/tests/test_threat_matrix.py)).
+- **Correction:** Removed the tamper simulation button from the client UI modal so users cannot tamper with stored production records. Implemented the verification test in isolated test suites ([`test_threat_matrix.py::test_threat_20`](backend/tests/test_threat_matrix.py)).
 
 ### Defect 5: Permission Deletion Route Mismatch in Test Suite
 - **Issue:** In the initial version of `test_threat_matrix.py`, the test called `DELETE /api/v1/documents/{doc_id}/permissions/{perm_id}` which returned HTTP 404.
 - **Symptom:** Test failed with `assert 404 == 200`.
-- **Verification:** Inspected [`backend/app/routes/permissions.py`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/backend/app/routes/permissions.py) and verified the registered route was `@permissions_bp.route("/permissions/<permission_id>", methods=["DELETE"])`.
+- **Verification:** Inspected [`backend/app/routes/permissions.py`](backend/app/routes/permissions.py) and verified the registered route was `@permissions_bp.route("/permissions/<permission_id>", methods=["DELETE"])`.
 - **Correction:** Updated test to call `DELETE /api/v1/permissions/{perm_id}`. Re-ran test; passed with HTTP 200.
 
 ### Defect 6: Badge and Button Variant Prop Mismatches in Route Expansion
-- **Issue:** New page components referenced generic Radix/shadcn variant names (`destructive`, `default`, `outline`) which conflicted with the custom multi-color design tokens in [`components/ui/badge.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/ui/badge.tsx) (`danger`, `neutral`, `champagne`) and [`components/ui/button.tsx`](file:///d:/Documents/Tirumala%20-%20Projects/TrustVault/frontend/src/components/ui/button.tsx) (`primary`, `danger`, `outline`).
+- **Issue:** New page components referenced generic Radix/shadcn variant names (`destructive`, `default`, `outline`) which conflicted with the custom multi-color design tokens in [`components/ui/badge.tsx`](frontend/src/components/ui/badge.tsx) (`danger`, `neutral`, `champagne`) and [`components/ui/button.tsx`](frontend/src/components/ui/button.tsx) (`primary`, `danger`, `outline`).
 - **Symptom:** `npm run build` failed with TypeScript error TS2322.
 - **Verification:** Inspected prop types in `frontend/src/components/ui/`.
 - **Correction:** Normalized all new pages to use the designated design token variants (`variant="danger"` for destructive actions, `variant="neutral"` for secondary badges, `variant="primary"` for primary actions). Build passed in 1.22s with 0 errors.
