@@ -523,7 +523,107 @@ export default async function handler(req: CustomRequest, res: CustomResponse) {
     });
   }
 
-  // 10. Audit Events & Cryptographic Chain
+  // 10. Dashboard Telemetry & Metrics
+  if (cleanPath === '/api/v1/dashboard/summary' || cleanPath === '/api/dashboard/summary') {
+    const totalStorage = documents.reduce((acc, d) => acc + (d.size_bytes || 0), 0);
+    return sendJson(200, {
+      metrics: {
+        total_documents: documents.length,
+        active_members: 2,
+        shared_documents: 1,
+        active_permissions: 2,
+        recent_security_events: 2,
+        verified_count: documents.length,
+        mismatch_count: 0,
+        total_storage_bytes: totalStorage,
+        storage_quota_bytes: 1073741824, // 1 GB
+        remaining_storage_bytes: 1073741824 - totalStorage,
+        storage_by_type: {
+          pdf: documents.filter((d) => d.mime_type.includes('pdf')).reduce((acc, d) => acc + d.size_bytes, 0),
+          xlsx: documents.filter((d) => d.mime_type.includes('sheet') || d.mime_type.includes('excel')).reduce((acc, d) => acc + d.size_bytes, 0),
+        },
+      },
+    });
+  }
+
+  if (cleanPath === '/api/v1/dashboard/activity' || cleanPath === '/api/dashboard/activity') {
+    const daysParam = parseInt(url.searchParams.get('days') || '7', 10);
+    const activity = [];
+    const now = Date.now();
+    for (let i = daysParam - 1; i >= 0; i--) {
+      const d = new Date(now - i * 86400000);
+      activity.push({
+        date: d.toISOString().split('T')[0],
+        uploads: i === 0 ? 1 : i === 2 ? 1 : 0,
+        downloads: i === 1 ? 2 : i === 4 ? 1 : 0,
+        shares: i === 0 ? 1 : 0,
+        verifications: i === 0 ? 3 : i === 2 ? 2 : 1,
+      });
+    }
+    return sendJson(200, { activity, days: daysParam });
+  }
+
+  // 11. Members & Permissions Overview
+  if (cleanPath === '/api/v1/members' || cleanPath === '/api/members') {
+    return sendJson(200, {
+      members: [
+        {
+          id: 'mem-01',
+          user_id: defaultUser.id,
+          full_name: defaultUser.full_name,
+          email: defaultUser.email,
+          role: 'admin',
+          created_at: defaultUser.created_at,
+          last_login_at: new Date().toISOString(),
+        },
+        {
+          id: 'mem-02',
+          user_id: 'usr-admin-sarah',
+          full_name: 'Sarah Jenkins',
+          email: 'sarah.jenkins@trustvault.app',
+          role: 'admin',
+          created_at: '2026-02-01T00:00:00.000Z',
+          last_login_at: new Date(Date.now() - 86400000).toISOString(),
+        },
+      ],
+      total: 2,
+    });
+  }
+
+  if (cleanPath === '/api/v1/permissions/overview' || cleanPath === '/api/permissions/overview') {
+    return sendJson(200, {
+      total_grants: 2,
+      active_grants: 2,
+      expiring_soon_count: 0,
+      revoked_grants: 0,
+      shared_documents_count: 1,
+    });
+  }
+
+  if (cleanPath === '/api/v1/shared-with-me' || cleanPath === '/api/shared-with-me') {
+    return sendJson(200, {
+      documents: [
+        {
+          id: documents[1].id,
+          name: documents[1].original_filename,
+          original_filename: documents[1].original_filename,
+          size_bytes: documents[1].size_bytes,
+          mime_type: documents[1].mime_type,
+          classification: documents[1].classification,
+          sha256_hash: documents[1].sha256_hash,
+          owner_name: 'Sarah Jenkins',
+          owner_email: 'sarah.jenkins@trustvault.app',
+          permission_level: 'download',
+          granted_at: '2026-02-10T14:30:00.000Z',
+          expires_at: null,
+          created_at: documents[1].created_at,
+        },
+      ],
+      total: 1,
+    });
+  }
+
+  // 12. Audit Events & Cryptographic Chain
   if (cleanPath === '/api/v1/audit-events') {
     return sendJson(200, {
       events: [
