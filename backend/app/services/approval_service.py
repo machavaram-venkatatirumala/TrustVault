@@ -164,7 +164,7 @@ class ApprovalService:
 
         # 3. Version content integrity check:
         # Check if the document was altered since the workflow was initiated
-        document = Document.query.get(instance.document_id)
+        document = db.session.get(Document, instance.document_id)
         if document and document.sha256_hash != instance.version_hash:
             instance.status = ApprovalWorkflowInstance.STATUS_CHANGES_REQUESTED
             db.session.commit()

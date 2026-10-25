@@ -95,7 +95,11 @@ def get_campaign_items(campaign_id):
         campaign_id=campaign_id,
         organization_id=g.current_org.id,
     )
-    return jsonify({"items": items}), 200
+    campaign = GovernanceService.get_campaign(
+        campaign_id=campaign_id,
+        organization_id=g.current_org.id,
+    )
+    return jsonify({"items": items, "campaign": campaign}), 200
 
 
 @governance_bp.route("/access-reviews/<campaign_id>/items/<item_id>/decide", methods=["POST"])

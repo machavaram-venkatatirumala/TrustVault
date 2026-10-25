@@ -158,8 +158,18 @@ class GovernanceService:
         return [i.to_dict() for i in items]
 
     @staticmethod
+    def get_campaign(campaign_id: str, organization_id: str) -> dict:
+        campaign = AccessReviewCampaign.query.filter_by(id=campaign_id, organization_id=organization_id).first()
+        if not campaign:
+            raise APIError("Campaign not found.", status_code=404)
+        return campaign.to_dict()
+
+    @staticmethod
     def decide_campaign_item(campaign_id: str, item_id: str, organization_id: str, decision: str, notes: str, actor: User) -> dict:
-        item = AccessReviewItem.query.filter_by(id=item_id, campaign_id=campaign_id).first()
+        campaign = AccessReviewCampaign.query.filter_by(id=campaign_id, organization_id=organization_id).first()
+        if not campaign:
+            raise APIError("Campaign not found or access denied.", status_code=404)
+        item = AccessReviewItem.query.filter_by(id=item_id, campaign_id=campaign.id).first()
         if not item:
             raise APIError("Review item not found.", status_code=404)
 
