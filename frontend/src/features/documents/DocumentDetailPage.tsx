@@ -30,11 +30,13 @@ import { api, ApiError } from '../../lib/api';
 import { formatBytes, formatDate } from '../../lib/formatters';
 import type { DocumentItem, DocumentPermissionItem, IntegrityVerificationResult, ClassificationLevel } from '../../types';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export function DocumentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
+  const { success, error: toastError } = useToast();
 
   const [document, setDocument] = useState<DocumentItem | null>(null);
   const [permissions, setPermissions] = useState<DocumentPermissionItem[]>([]);
@@ -114,7 +116,7 @@ export function DocumentDetailPage() {
           : null
       );
     } catch (err: any) {
-      alert(err.message || 'Verification failed');
+      toastError('Verification Failed', err.message || 'Verification failed');
     } finally {
       setVerifying(false);
     }
@@ -126,7 +128,7 @@ export function DocumentDetailPage() {
     try {
       await api.documents.download(document.id, document.original_filename);
     } catch (err: any) {
-      alert(err.message || 'Download failed');
+      toastError('Download Failed', err.message || 'Download failed');
     } finally {
       setDownloading(false);
     }
@@ -143,12 +145,13 @@ export function DocumentDetailPage() {
         classificationReason.trim() || undefined
       );
       setDocument((prev) => (prev ? { ...prev, classification: res.classification } : null));
+      success('Classification Updated', `Document classification set to ${res.classification}.`);
       setClassificationSuccess(`Classification updated to ${res.classification}`);
       setTimeout(() => setClassificationSuccess(null), 3000);
       setClassificationModal(false);
       setClassificationReason('');
     } catch (err: any) {
-      alert(err.message || 'Failed to update classification');
+      toastError('Update Failed', err.message || 'Failed to update classification');
     } finally {
       setUpdatingClassification(false);
     }
@@ -161,8 +164,9 @@ export function DocumentDetailPage() {
       const res = await api.enterprise.generateSignedUrl(id, signedUrlExpiresIn);
       setGeneratedSignedUrl(res.signed_url);
       setSignedUrlExpiresAt(res.expires_at);
+      success('Signed URL Created', 'Temporary direct download link generated.');
     } catch (err: any) {
-      alert(err.message || 'Failed to generate signed download link');
+      toastError('Link Generation Failed', err.message || 'Failed to generate signed download link');
     } finally {
       setGeneratingSignedUrl(false);
     }
@@ -172,6 +176,7 @@ export function DocumentDetailPage() {
     if (!generatedSignedUrl) return;
     navigator.clipboard.writeText(generatedSignedUrl);
     setCopiedSignedUrl(true);
+    success('Link Copied', 'Signed download link copied to clipboard.');
     setTimeout(() => setCopiedSignedUrl(false), 2000);
   };
 
@@ -180,8 +185,9 @@ export function DocumentDetailPage() {
     try {
       await api.permissions.revoke(permId);
       setPermissions((prev) => prev.filter((p) => p.id !== permId));
+      success('Access Revoked', 'Permission grant immediately terminated.');
     } catch (err: any) {
-      alert(err.message || 'Failed to revoke permission');
+      toastError('Revocation Failed', err.message || 'Failed to revoke permission');
     }
   };
 

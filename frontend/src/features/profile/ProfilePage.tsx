@@ -15,11 +15,13 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 import { api, ApiError } from '../../lib/api';
 import { formatDate } from '../../lib/formatters';
 
 export function ProfilePage() {
   const { user, organization, role, refetch, logout } = useAuth();
+  const { success, error: toastError } = useToast();
 
   // Profile update state
   const [fullName, setFullName] = useState(user?.full_name || '');
@@ -92,13 +94,13 @@ export function ProfilePage() {
       await logout();
       window.location.href = '/login';
     } catch (err: any) {
-      alert(err.message || 'Failed to delete account.');
+      toastError(err.message || 'Failed to delete account.');
       setDeleting(false);
     }
   };
 
   return (
-    <div className="p-6 sm:p-8 max-w-4xl mx-auto space-y-8 font-sans">
+    <div className="max-w-4xl mx-auto space-y-8 font-sans">
       {/* Title */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">

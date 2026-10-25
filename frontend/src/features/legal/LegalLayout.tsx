@@ -22,7 +22,7 @@ export function LegalLayout({
   return (
     <div className="min-h-screen bg-background-warm flex flex-col font-sans selection:bg-primary-soft selection:text-primary">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-elevated/95 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="inline-flex items-center">
@@ -30,16 +30,18 @@ export function LegalLayout({
             </Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/">
-              <Button variant="ghost" size="sm" className="text-xs gap-1.5">
+              <Button variant="ghost" size="sm" className="text-xs gap-1.5 px-2 sm:px-3">
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to Home</span>
+                <span className="hidden sm:inline">Back to Home</span>
+                <span className="sm:hidden">Home</span>
               </Button>
             </Link>
             <Link to="/register">
-              <Button size="sm" className="text-xs">
-                Create Account
+              <Button size="sm" className="text-xs px-2.5 sm:px-3">
+                <span className="hidden sm:inline">Create Account</span>
+                <span className="sm:hidden">Sign Up</span>
               </Button>
             </Link>
           </div>
@@ -67,7 +69,7 @@ export function LegalLayout({
         </div>
 
         {/* Document Body */}
-        <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm text-text-secondary leading-relaxed space-y-8">
+        <div className="prose max-w-none text-xs sm:text-sm text-text-secondary leading-relaxed space-y-8">
           {children}
         </div>
       </main>

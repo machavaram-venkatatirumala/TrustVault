@@ -15,12 +15,17 @@ import {
   Sparkles,
   RefreshCw,
   SlidersHorizontal,
+  Menu,
+  X,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { TrustVaultLogo } from '../../components/brand/TrustVaultLogo';
 
 export function LandingPage() {
+  // Mobile Navigation Drawer State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   // Interactive Product Preview State
   const [activeTab, setActiveTab] = useState<'integrity' | 'permissions'>('integrity');
   const [verifying, setVerifying] = useState(false);
@@ -43,9 +48,17 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-background-warm flex flex-col font-sans selection:bg-primary-soft selection:text-primary">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-elevated/95 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="md:hidden p-1.5 rounded-medium text-text-secondary hover:text-text-primary hover:bg-surface-subtle"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
             <Link to="/" className="inline-flex items-center">
               <TrustVaultLogo size="md" />
             </Link>
@@ -69,20 +82,76 @@ export function LandingPage() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-xs">
+              <Button variant="ghost" size="sm" className="text-xs px-2.5 sm:px-3">
                 Sign in
               </Button>
             </Link>
             <Link to="/register">
-              <Button size="sm" className="text-xs gap-1.5 shadow-subtle">
-                <span>Start your workspace</span>
+              <Button size="sm" className="text-xs gap-1.5 shadow-subtle font-bold px-3 sm:px-4">
+                <span className="hidden sm:inline">Start your workspace</span>
+                <span className="sm:hidden">Get Started</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Button>
             </Link>
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-white px-4 py-4 space-y-3 shadow-lg animate-in slide-in-from-top-2">
+            <nav className="flex flex-col space-y-2 text-sm font-semibold text-text-secondary">
+              <a
+                href="#product"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-medium hover:bg-surface-subtle hover:text-text-primary transition-colors"
+              >
+                Product Preview
+              </a>
+              <Link
+                to="/features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-medium hover:bg-surface-subtle hover:text-text-primary transition-colors"
+              >
+                Enterprise Features
+              </Link>
+              <Link
+                to="/security"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-medium hover:bg-surface-subtle hover:text-text-primary transition-colors"
+              >
+                Security & Zero-Trust
+              </Link>
+              <Link
+                to="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-medium hover:bg-surface-subtle hover:text-text-primary transition-colors"
+              >
+                Pricing & Quotas
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-medium hover:bg-surface-subtle hover:text-text-primary transition-colors"
+              >
+                About TrustVault
+              </Link>
+            </nav>
+            <div className="pt-2 border-t border-border flex items-center justify-between gap-3">
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                <Button variant="outline" size="sm" className="w-full text-xs font-semibold">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1">
+                <Button size="sm" className="w-full text-xs font-bold">
+                  Start Free
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -176,7 +245,7 @@ export function LandingPage() {
 
                 {activeTab === 'integrity' ? (
                   <div className="space-y-4">
-                    <div className="p-3.5 rounded-medium bg-surface-subtle border border-border/80 flex items-center justify-between">
+                    <div className="p-3.5 rounded-medium bg-surface-subtle border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-small bg-primary-soft text-primary flex items-center justify-center shrink-0">
                           <FileText className="w-5 h-5" />
@@ -190,13 +259,13 @@ export function LandingPage() {
                           </div>
                         </div>
                       </div>
-                      <Badge variant="success">
+                      <Badge variant="success" className="self-start sm:self-auto">
                         <ShieldCheck className="w-3 h-3 mr-1" />
                         Verified Match
                       </Badge>
                     </div>
 
-                    <div className="p-3.5 rounded-medium border border-border bg-white dark:bg-elevated space-y-2">
+                    <div className="p-3.5 rounded-medium border border-border bg-white space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-semibold text-text-primary">
                           Authoritative SHA-256 Byte Stream Digest
@@ -206,7 +275,7 @@ export function LandingPage() {
                       <div className="p-2 rounded bg-surface-subtle font-mono text-[11px] text-primary break-all select-all">
                         e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
                       </div>
-                      <div className="flex items-center justify-between pt-1 text-[11px] text-text-secondary">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-1 gap-2 text-[11px] text-text-secondary">
                         <span>Last Verified: Just now</span>
                         <button
                           onClick={simulateVerify}
@@ -222,19 +291,19 @@ export function LandingPage() {
                 ) : (
                   <div className="space-y-4">
                     <div className="p-3.5 rounded-medium bg-surface-subtle border border-border/80 space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-primary" />
-                          <span className="text-xs font-semibold text-text-primary">
+                          <Users className="w-4 h-4 text-primary shrink-0" />
+                          <span className="text-xs font-semibold text-text-primary truncate">
                             Recipient: dev-team@trusted-partner.example
                           </span>
                         </div>
-                        <Badge variant={accessRevoked ? 'danger' : 'default'}>
+                        <Badge variant={accessRevoked ? 'danger' : 'default'} className="self-start sm:self-auto">
                           {accessRevoked ? 'Revoked' : 'Active Grant'}
                         </Badge>
                       </div>
 
-                      <div className="flex items-center justify-between text-xs pt-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs pt-1">
                         <span className="text-text-muted">Enforced Permission Level:</span>
                         <div className="flex items-center gap-1">
                           <button
@@ -268,7 +337,7 @@ export function LandingPage() {
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                      <div className="pt-2 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
                         <span className="text-[11px] text-text-muted">
                           {accessRevoked ? 'Subsequent downloads blocked instantly' : 'Authenticated downloads permitted'}
                         </span>

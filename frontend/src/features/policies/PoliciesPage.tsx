@@ -20,9 +20,11 @@ import { api } from '../../lib/api';
 import { SecurityPolicy, PolicyExecutionLog } from '../../types';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export function PoliciesPage() {
   const { isAdmin } = useAuth();
+  const { success, error: toastError } = useToast();
   const [policies, setPolicies] = useState<SecurityPolicy[]>([]);
   const [logs, setLogs] = useState<PolicyExecutionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,8 +71,9 @@ export function PoliciesPage() {
       setPolicies((prev) =>
         prev.map((p) => (p.id === id ? { ...p, is_enabled: updated.is_enabled } : p))
       );
+      success(updated.is_enabled ? 'Policy enabled successfully.' : 'Policy disabled.');
     } catch (err: any) {
-      alert(err.message || 'Failed to toggle policy.');
+      toastError(err.message || 'Failed to toggle policy.');
     }
   };
 
@@ -85,8 +88,9 @@ export function PoliciesPage() {
         permission_level: simPermLevel,
       });
       setSimResult(res);
+      success('Policy simulation executed.');
     } catch (err: any) {
-      alert(err.message || 'Simulation failed.');
+      toastError(err.message || 'Simulation failed.');
     } finally {
       setIsSimulating(false);
     }
@@ -100,9 +104,10 @@ export function PoliciesPage() {
       setCleanMessage(
         `Maintenance Completed: ${res.revoked_count} expired access grants were automatically marked as revoked.`
       );
+      success(`Maintenance completed: ${res.revoked_count} expired grants revoked.`);
       await loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to run maintenance.');
+      toastError(err.message || 'Failed to run maintenance.');
     } finally {
       setIsCleaning(false);
     }

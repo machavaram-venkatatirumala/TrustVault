@@ -26,9 +26,11 @@ import {
 } from '../../types';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export function ApprovalsPage() {
   const { user, isAdmin } = useAuth();
+  const { success, error: toastError } = useToast();
   const [workflows, setWorkflows] = useState<ApprovalWorkflowInstance[]>([]);
   const [templates, setTemplates] = useState<ApprovalWorkflowTemplate[]>([]);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -116,9 +118,10 @@ export function ApprovalsPage() {
       );
       setSubmitModalOpen(false);
       setSubmitNotes('');
+      success('Document submitted for approval successfully.');
       await loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to submit document for approval.');
+      toastError(err.message || 'Failed to submit document for approval.');
     } finally {
       setIsSubmittingWorkflow(false);
     }
@@ -136,9 +139,10 @@ export function ApprovalsPage() {
       setTemplateModalOpen(false);
       setNewTemplateName('');
       setNewTemplateDesc('');
+      success('Approval template created successfully.');
       await loadData();
     } catch (err: any) {
-      alert(err.message || 'Failed to create template.');
+      toastError(err.message || 'Failed to create template.');
     }
   };
 

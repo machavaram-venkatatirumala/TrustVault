@@ -20,9 +20,11 @@ import { api } from '../../lib/api';
 import { EvidencePackage } from '../../types';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export function EvidenceCenterPage() {
   const { user, isAdmin } = useAuth();
+  const { success, error: toastError } = useToast();
   const [packages, setPackages] = useState<EvidencePackage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
@@ -83,9 +85,10 @@ export function EvidenceCenterPage() {
       });
       setGenerateModalOpen(false);
       setPackageName('');
+      success('Evidence package generated successfully.');
       await loadPackages();
     } catch (err: any) {
-      alert(err.message || 'Failed to generate evidence package.');
+      toastError(err.message || 'Failed to generate evidence package.');
     } finally {
       setIsGenerating(false);
     }
@@ -104,14 +107,16 @@ export function EvidenceCenterPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      success('Evidence package download initiated.');
     } catch (err: any) {
-      alert(err.message || 'Download failed.');
+      toastError(err.message || 'Download failed.');
     }
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedHash(text);
+    success('Manifest SHA-256 hash copied to clipboard.');
     setTimeout(() => setCopiedHash(null), 2000);
   };
 
@@ -209,14 +214,14 @@ export function EvidenceCenterPage() {
                   </div>
 
                   {/* Manifest Hash */}
-                  <div className="flex items-center gap-2 pt-1">
-                    <span className="text-[11px] font-semibold text-text-muted">Manifest SHA-256:</span>
-                    <span className="font-mono text-[10px] bg-surface-subtle border border-border px-2 py-0.5 rounded text-text-secondary">
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    <span className="text-[11px] font-semibold text-text-muted shrink-0">Manifest SHA-256:</span>
+                    <span className="font-mono text-[10px] bg-surface-subtle border border-border px-2 py-0.5 rounded text-text-secondary break-all">
                       {pkg.sha256_manifest_hash}
                     </span>
                     <button
                       onClick={() => copyToClipboard(pkg.sha256_manifest_hash)}
-                      className="p-1 text-text-muted hover:text-text-primary transition-colors"
+                      className="p-1 text-text-muted hover:text-text-primary transition-colors shrink-0"
                       title="Copy SHA-256 Hash"
                     >
                       {copiedHash === pkg.sha256_manifest_hash ? (

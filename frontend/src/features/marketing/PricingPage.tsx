@@ -16,6 +16,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { TrustVaultLogo } from '../../components/brand/TrustVaultLogo';
+import { MarketingHeader } from '../../components/layout/MarketingHeader';
 
 export function PricingPage() {
   const plans = [
@@ -92,46 +93,7 @@ export function PricingPage() {
 
   return (
     <div className="min-h-screen bg-background-warm flex flex-col font-sans selection:bg-primary-soft selection:text-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-elevated/95 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="inline-flex items-center">
-            <TrustVaultLogo size="md" />
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-text-secondary">
-            <Link to="/" className="hover:text-text-primary transition-colors">
-              Home
-            </Link>
-            <Link to="/features" className="hover:text-text-primary transition-colors">
-              Features
-            </Link>
-            <Link to="/security" className="hover:text-text-primary transition-colors">
-              Security
-            </Link>
-            <Link to="/pricing" className="text-primary font-bold">
-              Pricing
-            </Link>
-            <Link to="/about" className="hover:text-text-primary transition-colors">
-              About
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="text-xs">
-                Sign in
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm" className="text-xs gap-1.5 shadow-subtle">
-                <span>Start your workspace</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader activePage="pricing" />
 
       {/* Hero Banner */}
       <section className="pt-16 pb-12 sm:pt-20 sm:pb-16 bg-gradient-to-b from-white via-surface-blue/20 to-background-warm dark:from-elevated dark:via-surface-blue/10 dark:to-background-warm border-b border-border">

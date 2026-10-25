@@ -58,7 +58,7 @@ export function BillingPage() {
   const maxUploadSize = metrics?.max_upload_size_bytes || 25 * 1024 * 1024; // 25 MB
 
   return (
-    <div className="p-6 sm:p-8 max-w-5xl mx-auto space-y-8 font-sans">
+    <div className="max-w-5xl mx-auto space-y-8 font-sans">
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-text-primary tracking-tight">

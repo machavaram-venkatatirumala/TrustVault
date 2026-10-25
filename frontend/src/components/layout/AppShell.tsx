@@ -12,14 +12,23 @@ const titleMap: Record<string, string> = {
   '/app': 'Workspace Overview',
   '/app/overview': 'Workspace Overview',
   '/app/documents': 'Document Repository',
+  '/app/access-explorer': 'Access Explorer & Topology',
+  '/app/approvals': 'Document Approval Workflows',
+  '/app/saved-searches': 'Saved Searches & Filters',
   '/app/shared': 'Shared With Me',
   '/app/shared-with-me': 'Shared With Me',
   '/app/sharing': 'Access Permissions & Grants',
   '/app/permissions': 'Access Permissions & Grants',
+  '/app/policies': 'Security Policies & Guardrails',
+  '/app/access-reviews': 'Access Review Campaigns',
   '/app/audit': 'Security Audit Center',
+  '/app/evidence-center': 'Compliance Evidence Center',
+  '/app/security': 'Security Controls & Posture',
   '/app/members': 'Member & Role Management',
   '/app/invitations': 'Workspace Invitations',
-  '/app/security': 'Security Controls & Posture',
+  '/app/integrations': 'Enterprise SSO & Integrations',
+  '/app/quotas': 'Usage Quotas & Analytics',
+  '/app/feature-flags': 'Feature Management & Flags',
   '/app/settings': 'Workspace Settings',
   '/app/billing': 'Plan & Usage Analytics',
   '/app/profile': 'User Profile & Security',
@@ -38,7 +47,9 @@ export function AppShell() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const title = titleMap[location.pathname] || 'TrustVault';
+  const title =
+    titleMap[location.pathname] ||
+    (location.pathname.startsWith('/app/documents/') ? 'Document Details & Verification' : 'TrustVault');
 
   // Global Ctrl+K / Cmd+K listener
   useEffect(() => {

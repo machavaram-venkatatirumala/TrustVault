@@ -20,9 +20,11 @@ import { api } from '../../lib/api';
 import { OIDCConfig } from '../../types';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../hooks/useToast';
 
 export function IntegrationsPage() {
   const { isAdmin } = useAuth();
+  const { success, error: toastError } = useToast();
   const [activeTab, setActiveTab] = useState<'oidc' | 'scim' | 'dr'>('oidc');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -89,9 +91,10 @@ export function IntegrationsPage() {
       const cfg = res.oidc || res;
       setOidcConfig(cfg);
       setOidcSaveSuccess(true);
+      success('OIDC configuration updated successfully.');
       setTimeout(() => setOidcSaveSuccess(false), 3000);
     } catch (err: any) {
-      alert(err.message || 'Failed to update OIDC configuration.');
+      toastError(err.message || 'Failed to update OIDC configuration.');
     } finally {
       setIsSavingOidc(false);
     }
@@ -102,8 +105,9 @@ export function IntegrationsPage() {
     try {
       const res = await api.enterprise.generateDRBackup();
       setDrBackup(res);
+      success('DR backup snapshot generated successfully.');
     } catch (err: any) {
-      alert(err.message || 'Failed to generate DR backup snapshot.');
+      toastError(err.message || 'Failed to generate DR backup snapshot.');
     } finally {
       setIsGeneratingDr(false);
     }
@@ -112,6 +116,7 @@ export function IntegrationsPage() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedText(text);
+    success('Copied to clipboard.');
     setTimeout(() => setCopiedText(null), 2000);
   };
 
