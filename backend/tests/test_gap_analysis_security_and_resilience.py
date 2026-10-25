@@ -154,3 +154,52 @@ def test_out_of_bounds_pagination_safe_empty_results(client, test_setup):
     audit_data = audit_res.get_json()
     assert audit_data["events"] == []
     assert audit_data["page"] == 999
+
+
+def test_server_side_storage_quota_enforcement(client, test_setup):
+    """
+    SAAS BILLING & QUOTA TEST:
+    Server-side quota enforcement must reject uploads that exceed workspace limits.
+    """
+    login(client, test_setup["admin_email"], test_setup["password"])
+
+    # Set quota max_upload_size_bytes to 50 bytes
+    quota_res = client.patch(
+        "/api/v1/quotas",
+        json={"max_upload_size_bytes": 50, "max_storage_bytes": 1000},
+    )
+    assert quota_res.status_code == 200
+
+    # Upload file with 100 bytes -> must be rejected with 413
+    oversized = b"A" * 100
+    fail_upload = client.post(
+        "/api/v1/documents",
+        data={"file": (io.BytesIO(oversized), "oversized.pdf")},
+        content_type="multipart/form-data",
+    )
+    assert fail_upload.status_code == 413
+    assert "workspace maximum limit" in fail_upload.get_json()["error"]["message"]
+
+    # Upload file with 30 bytes -> succeeds
+    allowed = b"B" * 30
+    ok_upload = client.post(
+        "/api/v1/documents",
+        data={"file": (io.BytesIO(allowed), "allowed.pdf")},
+        content_type="multipart/form-data",
+    )
+    assert ok_upload.status_code == 201
+    doc_id = ok_upload.get_json()["id"]
+
+    # Attempt to upload a new version with 100 bytes -> must be rejected with 413
+    fail_version = client.post(
+        f"/api/v1/documents/{doc_id}/versions",
+        data={"file": (io.BytesIO(oversized), "oversized_v2.pdf")},
+        content_type="multipart/form-data",
+    )
+    assert fail_version.status_code == 413
+
+    # Reset quota to normal defaults
+    client.patch(
+        "/api/v1/quotas",
+        json={"max_upload_size_bytes": 25 * 1024 * 1024, "max_storage_bytes": 1024 * 1024 * 1024},
+    )

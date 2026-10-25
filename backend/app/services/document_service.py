@@ -95,6 +95,10 @@ class DocumentService:
         if size_bytes == 0:
             raise APIError("Uploaded file is empty (0 bytes).", status_code=400)
 
+        # Enforce workspace quota limits
+        from .policy_service import PolicyService
+        PolicyService.evaluate_upload_quota(organization.id, size_bytes, user)
+
         # Calculate authoritative SHA-256 on actual file bytes
         sha256_hash = calculate_sha256_bytes(file_bytes)
 

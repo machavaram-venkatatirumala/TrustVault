@@ -68,6 +68,10 @@ class VersionService:
         if size_bytes > max_size:
             raise APIError("File size exceeds maximum permitted limit.", status_code=413)
 
+        # Enforce workspace quota limits
+        from .policy_service import PolicyService
+        PolicyService.evaluate_upload_quota(organization.id, size_bytes, actor)
+
         sha256_hash = calculate_sha256_bytes(file_bytes)
         next_version_num = (document.current_version_number or 1) + 1
 
@@ -83,33 +87,39 @@ class VersionService:
 
         content_type = getattr(file_obj, "content_type", None) or document.content_type
 
-        version = DocumentVersion(
-            id=version_id,
-            document_id=document.id,
-            version_number=next_version_num,
-            storage_key=storage_key,
-            content_type=content_type,
-            size_bytes=size_bytes,
-            sha256_hash=sha256_hash,
-            scan_status="clean",
-            scan_result="Allowlist verified clean",
-            change_summary=change_summary or f"Version {next_version_num} upload",
-            created_by=actor.id,
-            created_at=datetime.utcnow(),
-        )
-        db.session.add(version)
+        try:
+            version = DocumentVersion(
+                id=version_id,
+                document_id=document.id,
+                version_number=next_version_num,
+                storage_key=storage_key,
+                content_type=content_type,
+                size_bytes=size_bytes,
+                sha256_hash=sha256_hash,
+                scan_status="clean",
+                scan_result="Allowlist verified clean",
+                change_summary=change_summary or f"Version {next_version_num} upload",
+                created_by=actor.id,
+                created_at=datetime.utcnow(),
+            )
+            db.session.add(version)
 
-        # Update document head pointer to the new version
-        document.current_version_number = next_version_num
-        document.storage_key = storage_key
-        document.content_type = content_type
-        document.size_bytes = size_bytes
-        document.sha256_hash = sha256_hash
-        document.last_verified_at = datetime.utcnow()
-        document.last_verification_status = "verified"
-        document.updated_at = datetime.utcnow()
+            # Update document head pointer to the new version
+            document.current_version_number = next_version_num
+            document.storage_key = storage_key
+            document.content_type = content_type
+            document.size_bytes = size_bytes
+            document.sha256_hash = sha256_hash
+            document.last_verified_at = datetime.utcnow()
+            document.last_verification_status = "verified"
+            document.updated_at = datetime.utcnow()
 
-        db.session.commit()
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            storage.delete(storage_key)
+            current_app.logger.error(f"Version metadata persistence failed: {e}", exc_info=True)
+            raise APIError("Failed to record document version metadata.", status_code=500)
 
         AuditService.record(
             organization_id=organization.id,
