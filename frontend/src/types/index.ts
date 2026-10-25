@@ -439,9 +439,10 @@ export interface EvidencePackage {
 export interface AccessGraphNode {
   id: string;
   label: string;
-  type: 'document' | 'user' | 'role' | 'policy';
+  type: 'document' | 'user' | 'role' | 'policy' | 'workspace' | 'collaborator';
   email?: string;
   role?: string;
+  status?: string;
   classification?: ClassificationLevel;
   size_bytes?: number;
   sha256_hash?: string;
