@@ -36,6 +36,7 @@ class SavedSearch(db.Model):
         self.filter_criteria_json = json.dumps(value or {})
 
     def to_dict(self):
+        crit = self.criteria or {}
         return {
             "id": self.id,
             "organization_id": self.organization_id,
@@ -43,7 +44,11 @@ class SavedSearch(db.Model):
             "creator_name": self.user.full_name if self.user else None,
             "name": self.name,
             "description": self.description,
-            "criteria": self.criteria,
+            "query": crit.get("query", ""),
+            "classification": crit.get("classification"),
+            "criteria": crit,
+            "has_active_grants": crit.get("has_active_grants"),
+            "is_expiring_soon": crit.get("is_expiring_soon"),
             "is_shared": self.is_shared,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

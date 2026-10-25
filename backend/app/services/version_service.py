@@ -6,7 +6,7 @@ from flask import current_app
 from ..extensions import db
 from ..errors import APIError
 from ..models import Document, DocumentVersion, User, Organization, DocumentPermission
-from ..security.sanitization import generate_opaque_storage_key, sanitize_filename
+from ..security.sanitization import generate_opaque_storage_key, sanitize_filename, validate_file_extension
 from ..storage import get_storage
 from ..utils.crypto import calculate_sha256_bytes
 from .audit_service import AuditService
@@ -28,11 +28,27 @@ class VersionService:
         if not document or document.status == "purged":
             raise APIError("Document not found.", status_code=404)
 
-        if not is_admin and document.owner_id != actor.id:
+        has_edit_access = is_admin or document.owner_id == actor.id
+        if not has_edit_access:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=document.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if active_perm and active_perm.is_active and active_perm.permission_level in ("edit", "manage"):
+                has_edit_access = True
+
+        if not has_edit_access:
             raise APIError("You are not authorized to create new versions of this document.", status_code=403)
 
         if not file_obj:
             raise APIError("No file provided for new version.", status_code=400)
+
+        file_filename = getattr(file_obj, "filename", None) or getattr(file_obj, "name", None) or document.original_filename
+        try:
+            validate_file_extension(file_filename)
+        except ValueError as e:
+            raise APIError(str(e), status_code=400)
 
         # Read file safely into buffer
         buffer = io.BytesIO()

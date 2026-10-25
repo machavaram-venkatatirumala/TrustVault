@@ -266,8 +266,23 @@ class EnterpriseIntegrationService:
         if not doc:
             raise APIError("Document not found.", status_code=404)
 
+        # Check authorization to download
+        is_admin = OrganizationMembership.query.filter_by(
+            organization_id=organization_id, user_id=actor.id, role="admin", status="active"
+        ).first() is not None
+
+        if not is_admin and doc.owner_id != actor.id:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=doc.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if not (active_perm and active_perm.is_active and active_perm.permission_level in ("download", "manage", "edit")):
+                raise APIError("You are not authorized to generate download URLs for this document.", status_code=403)
+
         expiry_timestamp = int(time.time()) + expires_in_seconds
-        secret_key = os.environ.get("SECRET_KEY", "trustvault_secret_signing_key_2026")
+        from flask import current_app
+        secret_key = (current_app.config.get("SECRET_KEY") if current_app else None) or os.environ.get("SECRET_KEY", "trustvault_secret_signing_key_2026")
 
         signature = hmac.new(
             secret_key.encode("utf-8"),

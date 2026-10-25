@@ -25,15 +25,20 @@ class AccessReviewCampaign(db.Model):
     items = db.relationship("AccessReviewItem", back_populates="campaign", cascade="all, delete-orphan")
 
     def to_dict(self):
+        items_list = self.items or []
+        completed_count = len([i for i in items_list if i.decision is not None])
         return {
             "id": self.id,
             "organization_id": self.organization_id,
             "title": self.title,
             "reviewer_name": self.reviewer.full_name if self.reviewer else None,
             "deadline": self.deadline.isoformat() if self.deadline else None,
+            "due_date": self.deadline.isoformat() if self.deadline else None,
             "status": self.status,
-            "items_count": len(self.items),
-            "decided_count": len([i for i in self.items if i.decision is not None]),
+            "items_count": len(items_list),
+            "total_items": len(items_list),
+            "decided_count": completed_count,
+            "completed_items": completed_count,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -50,7 +55,7 @@ class AccessReviewItem(db.Model):
     permission_id = db.Column(
         db.String(36), db.ForeignKey("document_permissions.id", ondelete="CASCADE"), nullable=False
     )
-    decision = db.Column(db.String(32), nullable=True)  # 'confirm', 'remove', 'investigate'
+    decision = db.Column(db.String(32), nullable=True)  # 'confirmed', 'revoked', 'pending'
     notes = db.Column(db.Text, nullable=True)
     decided_at = db.Column(db.DateTime, nullable=True)
 
@@ -59,14 +64,21 @@ class AccessReviewItem(db.Model):
     permission = db.relationship("DocumentPermission")
 
     def to_dict(self):
+        perm = self.permission
+        doc = perm.document if perm else None
+        recip = perm.recipient_user if perm else None
+
         return {
             "id": self.id,
             "campaign_id": self.campaign_id,
             "permission_id": self.permission_id,
-            "document_name": self.permission.document.original_filename if self.permission and self.permission.document else None,
-            "recipient_email": self.permission.recipient_email if self.permission else None,
-            "permission_level": self.permission.permission_level if self.permission else None,
-            "decision": self.decision,
+            "document_name": doc.original_filename if doc else None,
+            "recipient_name": recip.full_name if recip else None,
+            "recipient_email": recip.email if recip else None,
+            "permission_level": perm.permission_level if perm else None,
+            "granted_at": perm.created_at.isoformat() if perm and perm.created_at else None,
+            "expires_at": perm.expires_at.isoformat() if perm and perm.expires_at else None,
+            "decision": self.decision or "pending",
             "notes": self.notes,
             "decided_at": self.decided_at.isoformat() if self.decided_at else None,
         }

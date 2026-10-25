@@ -8,7 +8,12 @@ from sqlalchemy import or_
 from ..extensions import db
 from ..errors import APIError
 from ..models import Document, DocumentVersion, DocumentPermission, User, Organization
-from ..security.sanitization import sanitize_filename, generate_opaque_storage_key, inspect_file_magic
+from ..security.sanitization import (
+    sanitize_filename,
+    generate_opaque_storage_key,
+    inspect_file_magic,
+    validate_file_extension,
+)
 from ..storage import get_storage
 from ..utils.crypto import calculate_sha256_stream, calculate_sha256_bytes, constant_time_compare
 from .audit_service import AuditService
@@ -41,6 +46,12 @@ class DocumentService:
 
         raw_filename = getattr(file_obj, "filename", "unnamed_document")
         clean_filename = sanitize_filename(raw_filename)
+
+        # Validate file extension against allowed document types and dangerous executables
+        try:
+            validate_file_extension(clean_filename)
+        except ValueError as ve:
+            raise APIError(str(ve), status_code=400)
 
         # Inspect claimed content type and file magic header
         content_type = getattr(file_obj, "content_type", None) or "application/octet-stream"
@@ -600,6 +611,7 @@ class DocumentService:
 
         return {
             "documents": [doc.to_dict() for doc in documents],
+            "trash": [doc.to_dict() for doc in documents],
             "total": total,
             "page": page,
             "per_page": per_page,

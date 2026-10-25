@@ -14,7 +14,7 @@ class AccessExplorerService:
     """Computes authorized relationship graphs, inheritance paths, and effective permissions."""
 
     @staticmethod
-    def get_document_access_graph(document_id: str, organization_id: str, actor: User) -> dict:
+    def get_document_access_graph(document_id: str, organization_id: str, actor: User, is_admin: bool = False) -> dict:
         """
         Calculates all identities that can access a document, the origin of access
         (direct vs. inherited via workspace role), and effective permission level.
@@ -24,6 +24,15 @@ class AccessExplorerService:
         ).first()
         if not document:
             raise APIError("Document not found or access denied.", status_code=404)
+
+        if not is_admin and document.owner_id != actor.id:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=document.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if not (active_perm and active_perm.is_active):
+                raise APIError("You are not authorized to view this document's access graph.", status_code=403)
 
         now = datetime.utcnow()
         nodes = []
@@ -143,22 +152,22 @@ class AccessExplorerService:
         for p in direct_perms:
             is_revoked = p.revoked_at is not None
             is_expired = p.expires_at is not None and p.expires_at < now
-
             status_label = "revoked" if is_revoked else ("expired" if is_expired else "active")
 
-            recipient_label = p.recipient_email
-            recipient_node_id = f"perm:{p.id}"
-            if p.recipient_user:
-                recipient_node_id = f"user:{p.recipient_user_id}"
-                recipient_label = p.recipient_user.full_name
+            recip_user = p.recipient_user
+            recip_email = recip_user.email if recip_user else ""
+            recip_label = recip_user.full_name if recip_user else (recip_email or "Collaborator")
+            recipient_node_id = f"user:{p.recipient_user_id}" if p.recipient_user_id else f"perm:{p.id}"
+            can_dl = p.permission_level in ("download", "edit", "manage", "admin")
+            grantor_name = p.grantor.full_name if p.grantor else "System"
 
             # Add node
             if not any(n["id"] == recipient_node_id for n in nodes):
                 nodes.append({
                     "id": recipient_node_id,
-                    "label": recipient_label,
-                    "email": p.recipient_email,
-                    "type": "collaborator" if not p.recipient_user_id else "user",
+                    "label": recip_label,
+                    "email": recip_email,
+                    "type": "user" if p.recipient_user_id else "collaborator",
                     "status": status_label,
                 })
 
@@ -167,31 +176,31 @@ class AccessExplorerService:
                 "target": f"doc:{document.id}",
                 "relationship": "direct_grant",
                 "permission_level": p.permission_level,
-                "can_download": p.can_download,
+                "can_download": can_dl,
                 "inherited": False,
                 "status": status_label,
                 "details": f"Explicit share grant with {p.permission_level} rights",
             })
 
             # Check if this user was already in table_rows (e.g. from workspace role)
-            existing_row = next((r for r in table_rows if r.get("email") == p.recipient_email), None)
+            existing_row = next((r for r in table_rows if recip_email and r.get("email") == recip_email), None)
             if existing_row:
                 # Merge / resolve overlapping grant
                 existing_row["direct_permission"] = p.permission_level
                 existing_row["direct_grant_id"] = p.id
-                existing_row["grantor"] = p.granted_by.full_name if p.granted_by else "System"
+                existing_row["grantor"] = grantor_name
                 existing_row["expiration"] = p.expires_at.strftime("%Y-%m-%d") if p.expires_at else "Never"
             else:
                 table_rows.append({
                     "user_id": p.recipient_user_id or p.id,
-                    "name": recipient_label,
-                    "email": p.recipient_email,
+                    "name": recip_label,
+                    "email": recip_email,
                     "access_source": "Direct Grant",
                     "is_inherited": False,
                     "effective_permission": "denied" if (is_revoked or is_expired) else p.permission_level,
-                    "can_download": p.can_download if not (is_revoked or is_expired) else False,
+                    "can_download": can_dl if not (is_revoked or is_expired) else False,
                     "status": status_label,
-                    "grantor": p.granted_by.full_name if p.granted_by else "System",
+                    "grantor": grantor_name,
                     "expiration": p.expires_at.strftime("%Y-%m-%d %H:%M UTC") if p.expires_at else "Never",
                     "reason": f"Explicit permission granted with {p.permission_level} level" if not is_revoked and not is_expired else f"Grant is {status_label}",
                 })

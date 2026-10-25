@@ -47,7 +47,7 @@ class EvidenceService:
         manifest_items = []
 
         # 1. Audit Trail Events
-        if "audit_events" in categories:
+        if "audit_events" in categories or "audit_trail" in categories:
             query = AuditLog.query.filter_by(organization_id=organization_id)
             if date_from:
                 query = query.filter(AuditLog.created_at >= date_from)
@@ -66,7 +66,7 @@ class EvidenceService:
             })
 
         # 2. Permissions & Sharing History
-        if "permissions_history" in categories:
+        if "permissions_history" in categories or "permissions" in categories:
             perms = DocumentPermission.query.join(Document).filter(
                 Document.organization_id == organization_id
             ).all()
@@ -82,7 +82,7 @@ class EvidenceService:
             })
 
         # 3. Policy Configurations & Decisions
-        if "policy_configs" in categories:
+        if "policy_configs" in categories or "policies" in categories:
             policies = SecurityPolicy.query.filter_by(organization_id=organization_id).all()
             logs = PolicyExecutionLog.query.filter_by(organization_id=organization_id).all()
             data = {
@@ -111,6 +111,30 @@ class EvidenceService:
                 "record_count": len(data),
                 "sha256": digest,
                 "category": "Review Decisions and Version Hash Bindings",
+            })
+
+        # 5. Cryptographic Storage & Integrity Manifests
+        if "integrity" in categories:
+            docs = Document.query.filter_by(organization_id=organization_id, status="active").all()
+            data = [
+                {
+                    "document_id": d.id,
+                    "filename": d.original_filename,
+                    "sha256_hash": d.sha256_hash,
+                    "last_verified_at": d.last_verified_at.isoformat() if d.last_verified_at else None,
+                    "last_verification_status": d.last_verification_status,
+                    "size_bytes": d.size_bytes,
+                }
+                for d in docs
+            ]
+            serialized = json.dumps(data, indent=2, sort_keys=True)
+            digest = hashlib.sha256(serialized.encode("utf-8")).hexdigest()
+            artifacts["cryptographic_integrity_manifest.json"] = data
+            manifest_items.append({
+                "artifact": "cryptographic_integrity_manifest.json",
+                "record_count": len(data),
+                "sha256": digest,
+                "category": "Cryptographic Content Integrity & SHA-256 Hashes",
             })
 
         # Construct Master Manifest

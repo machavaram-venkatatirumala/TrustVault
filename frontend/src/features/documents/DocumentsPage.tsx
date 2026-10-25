@@ -149,7 +149,7 @@ export function DocumentsPage() {
     queryFn: () => api.documents.trash.list(),
   });
 
-  const trashDocuments = trashData?.trash || [];
+  const trashDocuments: DocumentItem[] = (trashData as any)?.trash || (trashData as any)?.documents || [];
 
   const handleRestoreFromTrash = async (doc: DocumentItem) => {
     try {

@@ -32,12 +32,18 @@ class GovernanceService:
 
     @staticmethod
     def create_saved_search(organization_id: str, actor: User, data: dict) -> dict:
+        criteria = dict(data.get("criteria") or {})
+        if "query" in data and "query" not in criteria:
+            criteria["query"] = data.get("query")
+        if "classification" in data and "classification" not in criteria:
+            criteria["classification"] = data.get("classification")
+
         search = SavedSearch(
             organization_id=organization_id,
             user_id=actor.id,
             name=data.get("name", "Untitled Filter"),
             description=data.get("description"),
-            filter_criteria_json=json.dumps(data.get("criteria", {})),
+            filter_criteria_json=json.dumps(criteria),
             is_shared=data.get("is_shared", False),
             created_at=datetime.utcnow(),
         )
@@ -46,10 +52,12 @@ class GovernanceService:
         return search.to_dict()
 
     @staticmethod
-    def delete_saved_search(search_id: str, organization_id: str, actor: User) -> dict:
+    def delete_saved_search(search_id: str, organization_id: str, actor: User, is_admin: bool = False) -> dict:
         search = SavedSearch.query.filter_by(id=search_id, organization_id=organization_id).first()
         if not search:
             raise APIError("Saved search not found.", status_code=404)
+        if not is_admin and search.user_id != actor.id:
+            raise APIError("You are not authorized to delete this saved search.", status_code=403)
         db.session.delete(search)
         db.session.commit()
         return {"message": "Saved search deleted."}
@@ -57,14 +65,23 @@ class GovernanceService:
     # --- Duplicate Content Detection ---
 
     @staticmethod
-    def find_duplicates(document_id: str, organization_id: str) -> list:
+    def find_duplicates(document_id: str, organization_id: str, actor: User = None, is_admin: bool = False) -> list:
         """
         Finds identical content by SHA-256 within the same organization tenant.
-        Zero cross-tenant leakage.
+        Zero cross-tenant leakage. Enforces document authorization.
         """
         doc = Document.query.filter_by(id=document_id, organization_id=organization_id).first()
-        if not doc:
+        if not doc or doc.status == "purged":
             raise APIError("Document not found.", status_code=404)
+
+        if actor and not is_admin and doc.owner_id != actor.id:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=doc.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if not (active_perm and active_perm.is_active):
+                raise APIError("You are not authorized to view duplicates for this document.", status_code=403)
 
         matching = (
             Document.query.filter(
@@ -146,12 +163,19 @@ class GovernanceService:
         if not item:
             raise APIError("Review item not found.", status_code=404)
 
-        item.decision = decision
+        norm_decision = (decision or "").strip().lower()
+        if norm_decision in ("remove", "revoked", "revoke"):
+            item.decision = "revoked"
+        elif norm_decision in ("confirm", "confirmed"):
+            item.decision = "confirmed"
+        else:
+            item.decision = decision
+
         item.notes = notes
         item.decided_at = datetime.utcnow()
 
-        # If decision is 'remove', revoke the permission immediately!
-        if decision == "remove" and item.permission:
+        # If decision is revoked / remove, revoke the permission immediately!
+        if norm_decision in ("remove", "revoked", "revoke") and item.permission:
             item.permission.revoked_at = datetime.utcnow()
             AuditService.record(
                 organization_id=organization_id,

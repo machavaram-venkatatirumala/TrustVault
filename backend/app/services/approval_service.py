@@ -8,6 +8,7 @@ from ..models import (
     ApprovalDecision,
     User,
     OrganizationMembership,
+    DocumentPermission,
 )
 from ..errors.handlers import APIError
 from .audit_service import AuditService
@@ -52,12 +53,22 @@ class ApprovalService:
         actor: User,
         template_id: str = None,
         submission_notes: str = None,
+        is_admin: bool = False,
     ) -> dict:
         document = Document.query.filter_by(
             id=document_id, organization_id=organization_id, status="active"
         ).first()
         if not document:
             raise APIError("Document not found or access denied.", status_code=404)
+
+        if not is_admin and document.owner_id != actor.id:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=document.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if not (active_perm and active_perm.is_active):
+                raise APIError("You are not authorized to submit this document for approval.", status_code=403)
 
         # Retrieve active version record
         current_version = DocumentVersion.query.filter_by(
@@ -219,12 +230,15 @@ class ApprovalService:
         return instance.to_dict()
 
     @staticmethod
-    def cancel_workflow(workflow_id: str, organization_id: str, actor: User) -> dict:
+    def cancel_workflow(workflow_id: str, organization_id: str, actor: User, is_admin: bool = False) -> dict:
         instance = ApprovalWorkflowInstance.query.filter_by(
             id=workflow_id, organization_id=organization_id
         ).first()
         if not instance:
             raise APIError("Approval workflow instance not found.", status_code=404)
+
+        if not is_admin and instance.submitter_id != actor.id:
+            raise APIError("Only the workflow submitter or an administrator can cancel this approval workflow.", status_code=403)
 
         instance.status = ApprovalWorkflowInstance.STATUS_CANCELED
         instance.updated_at = datetime.utcnow()

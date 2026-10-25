@@ -249,8 +249,19 @@ class AuthService:
             )
 
         session.clear()
-        db.session.delete(user)
-        db.session.commit()
+        try:
+            db.session.delete(user)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            user.is_active = False
+            user.email = f"deleted_{user.id[:8]}@deleted.local"
+            user.full_name = "Deleted User"
+            user.password_hash = "DELETED"
+            memberships = OrganizationMembership.query.filter_by(user_id=user.id).all()
+            for m in memberships:
+                m.status = "deactivated"
+            db.session.commit()
 
         return {"message": "Account has been successfully deleted."}
 

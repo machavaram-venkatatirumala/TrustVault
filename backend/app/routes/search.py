@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify, g
 from sqlalchemy import or_
 from ..security.authorization import login_required
@@ -25,15 +26,20 @@ def global_search():
         Document.original_filename.ilike(search_term),
     )
     if not is_admin:
+        now = datetime.utcnow()
         # Non-admins see documents they own or have permission to
         doc_query = doc_query.filter(
             or_(
                 Document.owner_id == user_id,
                 Document.id.in_(
                     DocumentPermission.query.with_entities(DocumentPermission.document_id).filter(
-                        DocumentPermission.grantee_user_id == user_id,
+                        DocumentPermission.recipient_user_id == user_id,
                         DocumentPermission.organization_id == org_id,
                         DocumentPermission.revoked_at.is_(None),
+                        or_(
+                            DocumentPermission.expires_at.is_(None),
+                            DocumentPermission.expires_at > now,
+                        ),
                     )
                 ),
             )

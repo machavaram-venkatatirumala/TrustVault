@@ -23,6 +23,7 @@ def submit_for_approval():
     document_id = data.get("document_id")
     template_id = data.get("template_id")
     notes = data.get("notes")
+    is_admin = g.current_membership.role == "admin"
 
     result = ApprovalService.submit_for_approval(
         document_id=document_id,
@@ -30,6 +31,7 @@ def submit_for_approval():
         actor=g.current_user,
         template_id=template_id,
         submission_notes=notes,
+        is_admin=is_admin,
     )
     return jsonify({"workflow": result, **result}), 201
 
@@ -74,9 +76,11 @@ def decide_approval(workflow_id):
 @approvals_bp.route("/approvals/<workflow_id>/cancel", methods=["POST"])
 @login_required
 def cancel_approval(workflow_id):
+    is_admin = g.current_membership.role == "admin"
     result = ApprovalService.cancel_workflow(
         workflow_id=workflow_id,
         organization_id=g.current_org.id,
         actor=g.current_user,
+        is_admin=is_admin,
     )
     return jsonify(result), 200

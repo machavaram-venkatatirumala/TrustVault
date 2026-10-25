@@ -17,6 +17,36 @@ MAGIC_SIGNATURES = {
     "application/json": [],
 }
 
+# Dangerous executable / script extensions strictly forbidden
+DANGEROUS_EXTENSIONS = {
+    ".exe", ".bat", ".cmd", ".sh", ".bash", ".php", ".phtml", ".py", ".pyw",
+    ".rb", ".pl", ".js", ".mjs", ".vbs", ".ps1", ".psm1", ".html", ".htm",
+    ".xhtml", ".svg", ".jar", ".msi", ".dll", ".com", ".scr", ".cpl", ".reg",
+    ".elf", ".bin", ".apk", ".app", ".dmg", ".iso", ".wsf", ".hta", ".asp",
+    ".aspx", ".cgi", ".jsp"
+}
+
+ALLOWED_DOCUMENT_EXTENSIONS = {
+    ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".txt", ".csv", ".json",
+    ".png", ".jpg", ".jpeg", ".md"
+}
+
+
+def validate_file_extension(filename: str) -> str:
+    """
+    Validates that a filename does not contain a dangerous executable or script extension.
+    Returns the lowercased extension on success, or raises ValueError.
+    """
+    if not filename:
+        raise ValueError("Filename cannot be empty.")
+    
+    _, ext = os.path.splitext(filename.lower().strip())
+    if ext in DANGEROUS_EXTENSIONS:
+        raise ValueError(f"Dangerous file extension '{ext}' is prohibited for security reasons.")
+
+    return ext
+
+
 
 def sanitize_filename(filename: str) -> str:
     """

@@ -23,6 +23,7 @@ class ClassificationService:
         new_classification: str,
         actor: User,
         reason: str = None,
+        is_admin: bool = False,
     ) -> dict:
         if new_classification not in ClassificationService.VALID_CLASSIFICATIONS:
             raise APIError(
@@ -35,6 +36,9 @@ class ClassificationService:
         ).first()
         if not document:
             raise APIError("Document not found or access denied.", status_code=404)
+
+        if not is_admin and document.owner_id != actor.id:
+            raise APIError("You are not authorized to modify the classification of this document.", status_code=403)
 
         prev_classification = getattr(document, "classification", "Internal") or "Internal"
         if prev_classification == new_classification:
@@ -100,10 +104,25 @@ class ClassificationService:
         return result
 
     @staticmethod
-    def get_history(document_id: str, organization_id: str) -> list:
+    def get_history(document_id: str, organization_id: str, actor: User = None, is_admin: bool = False) -> list:
+        document = Document.query.filter_by(
+            id=document_id, organization_id=organization_id, status="active"
+        ).first()
+        if not document:
+            raise APIError("Document not found or access denied.", status_code=404)
+
+        if actor and not is_admin and document.owner_id != actor.id:
+            active_perm = DocumentPermission.query.filter_by(
+                document_id=document.id,
+                recipient_user_id=actor.id,
+                revoked_at=None,
+            ).first()
+            if not (active_perm and active_perm.is_active):
+                raise APIError("You are not authorized to view this document's classification history.", status_code=403)
+
         history = (
             DocumentClassificationHistory.query.filter_by(
-                document_id=document_id, organization_id=organization_id
+                document_id=document.id, organization_id=organization_id
             )
             .order_by(DocumentClassificationHistory.created_at.desc())
             .all()

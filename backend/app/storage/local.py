@@ -14,11 +14,18 @@ class LocalStorageProvider(BaseStorageProvider):
 
     def _resolve_safe_path(self, key: str) -> Path:
         """Resolves target path and ensures it stays strictly within base_path."""
+        if not key or not str(key).strip():
+            raise ValueError("Storage key cannot be empty.")
+
         clean_key = key.lstrip("/\\")
         target = (self.base_path / clean_key).resolve()
         
         # Guard against directory traversal attacks
-        if not str(target).startswith(str(self.base_path)):
+        try:
+            rel = target.relative_to(self.base_path)
+            if str(rel) in (".", ""):
+                raise ValueError(f"Path traversal detected: {key}")
+        except ValueError:
             raise ValueError(f"Path traversal detected: {key}")
             
         return target
