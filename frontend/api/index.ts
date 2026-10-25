@@ -304,34 +304,6 @@ export default async function handler(req: CustomRequest, res: CustomResponse) {
     });
   }
 
-  // 7. Dashboard Summary & Activity
-  if (cleanPath === '/api/v1/dashboard/summary') {
-    return sendJson(200, {
-      metrics: {
-        total_documents: documents.length,
-        active_shares: 4,
-        total_audit_events: 18,
-        security_score: 98,
-        integrity_rate: 100,
-        tamper_incidents: 0,
-      },
-    });
-  }
-
-  if (cleanPath === '/api/v1/dashboard/activity') {
-    return sendJson(200, {
-      activity: [
-        { date: 'Mon', upload_count: 2, view_count: 12, audit_count: 18 },
-        { date: 'Tue', upload_count: 4, view_count: 15, audit_count: 24 },
-        { date: 'Wed', upload_count: 1, view_count: 8, audit_count: 12 },
-        { date: 'Thu', upload_count: 5, view_count: 22, audit_count: 35 },
-        { date: 'Fri', upload_count: 3, view_count: 18, audit_count: 27 },
-        { date: 'Sat', upload_count: 1, view_count: 5, audit_count: 7 },
-        { date: 'Sun', upload_count: 2, view_count: 10, audit_count: 14 },
-      ],
-      days: 7,
-    });
-  }
 
   // 8. Documents API
   if (cleanPath === '/api/v1/documents') {
